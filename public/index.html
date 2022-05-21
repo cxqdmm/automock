@@ -1,17 +1,106 @@
-<!DOCTYPE html>
-<html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="/favicon.ico">
-    <title>web</title>
-  <script defer src="/js/chunk-vendors-legacy.js"></script><script defer src="/js/app-legacy.js"></script></head>
-  <body>
-    <noscript>
-      <strong>We're sorry but web doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
-</html>
+<head><script defer src="/js/chunk-vendors-legacy.js"></script><script defer src="/js/app-legacy.js"></script></head>Html Webpack Plugin:
+<pre>
+  Error: Child compilation failed:
+  Module not found: Error: Can't resolve '/Users/mac/Documents/cxq  /plugins/whistle.automock/web/public/index.html' in '/Users/mac/  Documents/cxq/plugins/whistle.automock/web'
+  ModuleNotFoundError: Module not found: Error: Can't resolve '/Us  ers/mac/Documents/cxq/plugins/whistle.automock/web/public/index.  html' in '/Users/mac/Documents/cxq/plugins/whistle.automock/web'      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/Compilation.js:2016:28
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:798:13
+      at eval (eval at create (/Users/mac/Documents/cxq/plugins/wh  istle.automock/web/node_modules/tapable/lib/HookCodeFactory.js:3  3:10), <anonymous>:10:1)
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:270:22
+      at eval (eval at create (/Users/mac/Documents/cxq/plugins/wh  istle.automock/web/node_modules/tapable/lib/HookCodeFactory.js:3  3:10), <anonymous>:9:1)
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:434:22
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:116:11
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:670:25
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:855:8
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:975:5
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/neo-async/async.js:6883:13
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/webpack/lib/NormalModuleFactory.js:958:45
+      at finishWithoutResolve (/Users/mac/Documents/cxq/plugins/wh  istle.automock/web/node_modules/enhanced-resolve/lib/Resolver.js  :312:11)
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/enhanced-resolve/lib/Resolver.js:386:15
+      at /Users/mac/Documents/cxq/plugins/whistle.automock/web/nod  e_modules/enhanced-resolve/lib/Resolver.js:435:5
+      at eval (eval at create (/Users/mac/Documents/cxq/plugins/wh  istle.automock/web/node_modules/tapable/lib/HookCodeFactory.js:3  3:10), <anonymous>:16:1)
+  
+  - Compilation.js:2016 
+    [web]/[webpack]/lib/Compilation.js:2016:28
+  
+  - NormalModuleFactory.js:798 
+    [web]/[webpack]/lib/NormalModuleFactory.js:798:13
+  
+  
+  - NormalModuleFactory.js:270 
+    [web]/[webpack]/lib/NormalModuleFactory.js:270:22
+  
+  
+  - NormalModuleFactory.js:434 
+    [web]/[webpack]/lib/NormalModuleFactory.js:434:22
+  
+  - NormalModuleFactory.js:116 
+    [web]/[webpack]/lib/NormalModuleFactory.js:116:11
+  
+  - NormalModuleFactory.js:670 
+    [web]/[webpack]/lib/NormalModuleFactory.js:670:25
+  
+  - NormalModuleFactory.js:855 
+    [web]/[webpack]/lib/NormalModuleFactory.js:855:8
+  
+  - NormalModuleFactory.js:975 
+    [web]/[webpack]/lib/NormalModuleFactory.js:975:5
+  
+  - async.js:6883 
+    [web]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:958 
+    [web]/[webpack]/lib/NormalModuleFactory.js:958:45
+  
+  - Resolver.js:312 finishWithoutResolve
+    [web]/[enhanced-resolve]/lib/Resolver.js:312:11
+  
+  - Resolver.js:386 
+    [web]/[enhanced-resolve]/lib/Resolver.js:386:15
+  
+  - Resolver.js:435 
+    [web]/[enhanced-resolve]/lib/Resolver.js:435:5
+  
+  
+  - child-compiler.js:169 
+    [web]/[html-webpack-plugin]/lib/child-compiler.js:169:18
+  
+  - Compiler.js:551 finalCallback
+    [web]/[webpack]/lib/Compiler.js:551:5
+  
+  - Compiler.js:577 
+    [web]/[webpack]/lib/Compiler.js:577:11
+  
+  - Compiler.js:1196 
+    [web]/[webpack]/lib/Compiler.js:1196:17
+  
+  
+  - Hook.js:18 Hook.CALL_ASYNC_DELEGATE [as _callAsync]
+    [web]/[tapable]/lib/Hook.js:18:14
+  
+  - Compiler.js:1192 
+    [web]/[webpack]/lib/Compiler.js:1192:33
+  
+  - Compilation.js:2787 finalCallback
+    [web]/[webpack]/lib/Compilation.js:2787:11
+  
+  - Compilation.js:3092 
+    [web]/[webpack]/lib/Compilation.js:3092:11
+  
+  
+  - Hook.js:18 Hook.CALL_ASYNC_DELEGATE [as _callAsync]
+    [web]/[tapable]/lib/Hook.js:18:14
+  
+  - Compilation.js:3085 
+    [web]/[webpack]/lib/Compilation.js:3085:38
+  
+  
+  - Compilation.js:521 
+    [web]/[webpack]/lib/Compilation.js:521:10
+  
+  - SourceMapDevToolPlugin.js:549 
+    [web]/[webpack]/lib/SourceMapDevToolPlugin.js:549:10
+  
+  - async.js:2830 
+    [web]/[neo-async]/async.js:2830:7
+  
+</pre>
