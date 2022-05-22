@@ -1,8 +1,28 @@
 <template>
   <div class="list">
-    <div class="list-head"></div>
+    <div class="list-head">
+      <el-input
+        class="list-head-name"
+        clearable
+        placeholder="接口名模糊匹配"
+        v-model="search.name"
+        @keyup.enter.native="searchApi"
+      >
+        <el-button
+          slot="append"
+          icon="el-icon-search"
+          @click="searchApi"
+        ></el-button>
+      </el-input>
+    </div>
     <div class="list-body">
-      <el-table :data="list" height="800" border style="width: 100%">
+      <el-table
+        :data="list"
+        height="800"
+        border
+        style="width: 100%"
+        size="mini"
+      >
         <el-table-column prop="name" label="接口名"> </el-table-column>
         <el-table-column prop="updateTime" label="更新时间" width="200">
         </el-table-column>
@@ -19,8 +39,12 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <el-button @click="showEditWindow(scope.row)"> 编辑 </el-button>
-            <el-button @click="deleteApi(scope.row)"> 删除 </el-button>
+            <el-button size="mini" @click="showEditWindow(scope.row)">
+              编辑
+            </el-button>
+            <el-button size="mini" @click="deleteApi(scope.row)">
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -51,6 +75,7 @@
 
 <script>
 import {
+  Input,
   Table,
   Switch,
   Button,
@@ -58,17 +83,13 @@ import {
   Dialog,
   Message,
 } from "element-ui";
-import {
-  getApiList,
-  updateApiData,
-  updateApiMock,
-  deleteApi,
-} from "../service";
+import { search, updateApiData, updateApiMock, deleteApi } from "../service";
 import { formatTime } from "../util/time";
 import CodeEditor from "./code-editor";
 export default {
   name: "api-list",
   components: {
+    "el-input": Input,
     "el-table": Table,
     "el-switch": Switch,
     "el-button": Button,
@@ -82,6 +103,9 @@ export default {
   },
   data() {
     return {
+      search: {
+        name: "",
+      },
       list: [],
       dialogVisible: false,
       view: {},
@@ -98,7 +122,7 @@ export default {
       this.dialogVisible = false;
     },
     refreshList() {
-      getApiList().then((data) => {
+      search().then((data) => {
         this.list = (data || []).map((item) => {
           try {
             const data = JSON.parse(item.data);
@@ -111,7 +135,6 @@ export default {
             return item;
           }
         });
-        console.log("更新列表数据", this.list);
       });
     },
     updateApiData() {
@@ -155,6 +178,22 @@ export default {
           Message.error("删除失败");
         });
     },
+    searchApi() {
+      search({ name: this.search.name }).then((data) => {
+        this.list = (data || []).map((item) => {
+          try {
+            const data = JSON.parse(item.data);
+            return {
+              ...item,
+              updateTime: formatTime(data.time),
+              data: data.data,
+            };
+          } catch (error) {
+            return item;
+          }
+        });
+      });
+    },
   },
 };
 </script>
@@ -162,5 +201,12 @@ export default {
 <style scoped>
 .editor {
   height: 400px;
+}
+.list-head {
+  display: flex;
+  margin-bottom: 10px;
+}
+.list-head-name {
+  width: 400px;
 }
 </style>

@@ -345,7 +345,46 @@ var render = function () {
     "div",
     { staticClass: "list" },
     [
-      _c("div", { staticClass: "list-head" }),
+      _c(
+        "div",
+        { staticClass: "list-head" },
+        [
+          _c(
+            "el-input",
+            {
+              staticClass: "list-head-name",
+              attrs: { clearable: "", placeholder: "接口名模糊匹配" },
+              nativeOn: {
+                keyup: function ($event) {
+                  if (
+                    !$event.type.indexOf("key") &&
+                    _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+                  ) {
+                    return null
+                  }
+                  return _vm.searchApi.apply(null, arguments)
+                },
+              },
+              model: {
+                value: _vm.search.name,
+                callback: function ($$v) {
+                  _vm.$set(_vm.search, "name", $$v)
+                },
+                expression: "search.name",
+              },
+            },
+            [
+              _c("el-button", {
+                attrs: { slot: "append", icon: "el-icon-search" },
+                on: { click: _vm.searchApi },
+                slot: "append",
+              }),
+            ],
+            1
+          ),
+        ],
+        1
+      ),
       _c(
         "div",
         { staticClass: "list-body" },
@@ -354,7 +393,12 @@ var render = function () {
             "el-table",
             {
               staticStyle: { width: "100%" },
-              attrs: { data: _vm.list, height: "800", border: "" },
+              attrs: {
+                data: _vm.list,
+                height: "800",
+                border: "",
+                size: "mini",
+              },
             },
             [
               _c("el-table-column", {
@@ -403,6 +447,7 @@ var render = function () {
                         _c(
                           "el-button",
                           {
+                            attrs: { size: "mini" },
                             on: {
                               click: function ($event) {
                                 return _vm.showEditWindow(scope.row)
@@ -414,6 +459,7 @@ var render = function () {
                         _c(
                           "el-button",
                           {
+                            attrs: { size: "mini" },
                             on: {
                               click: function ($event) {
                                 return _vm.deleteApi(scope.row)
@@ -703,9 +749,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var element_ui_lib_theme_chalk_table_css__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_table_css__WEBPACK_IMPORTED_MODULE_11__);
 /* harmony import */ var element_ui_lib_table__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! element-ui/lib/table */ "./node_modules/element-ui/lib/table.js");
 /* harmony import */ var element_ui_lib_table__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_table__WEBPACK_IMPORTED_MODULE_12__);
-/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
-/* harmony import */ var _util_time__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../util/time */ "./src/util/time.js");
-/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
+/* harmony import */ var element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! element-ui/lib/theme-chalk/input.css */ "./node_modules/element-ui/lib/theme-chalk/input.css");
+/* harmony import */ var element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var element_ui_lib_input__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! element-ui/lib/input */ "./node_modules/element-ui/lib/input.js");
+/* harmony import */ var element_ui_lib_input__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_input__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
+/* harmony import */ var _util_time__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../util/time */ "./src/util/time.js");
+/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
 
 
 
@@ -724,6 +774,33 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -781,11 +858,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "api-list",
   components: {
+    "el-input": (element_ui_lib_input__WEBPACK_IMPORTED_MODULE_14___default()),
     "el-table": (element_ui_lib_table__WEBPACK_IMPORTED_MODULE_12___default()),
     "el-switch": (element_ui_lib_switch__WEBPACK_IMPORTED_MODULE_10___default()),
     "el-button": (element_ui_lib_button__WEBPACK_IMPORTED_MODULE_8___default()),
     "el-table-column": (element_ui_lib_table_column__WEBPACK_IMPORTED_MODULE_6___default()),
-    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_15__["default"],
+    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_17__["default"],
     "el-dialog": (element_ui_lib_dialog__WEBPACK_IMPORTED_MODULE_4___default())
   },
 
@@ -796,6 +874,9 @@ __webpack_require__.r(__webpack_exports__);
 
   data() {
     return {
+      search: {
+        name: ""
+      },
       list: [],
       dialogVisible: false,
       view: {}
@@ -814,25 +895,24 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     refreshList() {
-      (0,_service__WEBPACK_IMPORTED_MODULE_13__.getApiList)().then(data => {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.search)().then(data => {
         this.list = (data || []).map(item => {
           try {
             const data = JSON.parse(item.data);
             return { ...item,
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_14__.formatTime)(data.time),
+              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time),
               data: data.data
             };
           } catch (error) {
             return item;
           }
         });
-        console.log("更新列表数据", this.list);
       });
     },
 
     updateApiData() {
       this.editRow.data = this.view;
-      (0,_service__WEBPACK_IMPORTED_MODULE_13__.updateApiData)(this.editRow.name, this.view).then(data => {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.updateApiData)(this.editRow.name, this.view).then(data => {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
         } else {
@@ -846,7 +926,7 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     updateMock(mock, row) {
-      (0,_service__WEBPACK_IMPORTED_MODULE_13__.updateApiMock)(row.name, mock).then(data => {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.updateApiMock)(row.name, mock).then(data => {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
         } else {
@@ -858,7 +938,7 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     deleteApi(row) {
-      (0,_service__WEBPACK_IMPORTED_MODULE_13__.deleteApi)(row.name).then(data => {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.deleteApi)(row.name).then(data => {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
         } else {
@@ -866,6 +946,24 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).catch(() => {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
+      });
+    },
+
+    searchApi() {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.search)({
+        name: this.search.name
+      }).then(data => {
+        this.list = (data || []).map(item => {
+          try {
+            const data = JSON.parse(item.data);
+            return { ...item,
+              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time),
+              data: data.data
+            };
+          } catch (error) {
+            return item;
+          }
+        });
       });
     }
 
@@ -903,14 +1001,20 @@ new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "deleteApi": function() { return /* binding */ deleteApi; },
-/* harmony export */   "getApiList": function() { return /* binding */ getApiList; },
+/* harmony export */   "search": function() { return /* binding */ search; },
 /* harmony export */   "updateApiData": function() { return /* binding */ updateApiData; },
 /* harmony export */   "updateApiMock": function() { return /* binding */ updateApiMock; }
 /* harmony export */ });
-function getApiList() {
-  return fetch("/cgi-bin/api-list").then(response => {
+/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! qs */ "./node_modules/qs/lib/index.js");
+/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(qs__WEBPACK_IMPORTED_MODULE_0__);
+
+function search(params) {
+  const str = qs__WEBPACK_IMPORTED_MODULE_0___default().stringify(params);
+  return fetch(`/cgi-bin/api-list${str ? "?" + str : ""}`).then(response => {
     return response.json();
-  });
+  }); // return fetch("/cgi-bin/api-list").then((response) => {
+  //   return response.json();
+  // });
 }
 function updateApiData(name, data) {
   return fetch("/cgi-bin/update-api-data", {
@@ -1039,7 +1143,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n", ""]);
 // Exports
 /* harmony default export */ __webpack_exports__["default"] = (___CSS_LOADER_EXPORT___);
 
@@ -1106,6 +1210,16 @@ var add = (__webpack_require__(/*! !../../node_modules/vue-style-loader/lib/addS
 var update = add("53a5e755", content, false, {"sourceMap":false,"shadowMode":false});
 // Hot Module Replacement
 if(false) {}
+
+/***/ }),
+
+/***/ "?2128":
+/*!********************************!*\
+  !*** ./util.inspect (ignored) ***!
+  \********************************/
+/***/ (function() {
+
+/* (ignored) */
 
 /***/ })
 

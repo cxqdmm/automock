@@ -1,7 +1,12 @@
-export function getApiList() {
-  return fetch("/cgi-bin/api-list").then((response) => {
+import qs from "qs";
+export function search(params) {
+  const str = qs.stringify(params);
+  return fetch(`/cgi-bin/api-list${str ? "?" + str : ""}`).then((response) => {
     return response.json();
   });
+  // return fetch("/cgi-bin/api-list").then((response) => {
+  //   return response.json();
+  // });
 }
 
 export function updateApiData(name, data) {
