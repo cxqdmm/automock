@@ -27,3 +27,14 @@ export function updateApiMock(name, mock) {
     return response.json();
   });
 }
+export function deleteApi(name) {
+  return fetch("/cgi-bin/delete-api", {
+    method: "post",
+    body: JSON.stringify({ name }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}

@@ -354,7 +354,7 @@ var render = function () {
             "el-table",
             {
               staticStyle: { width: "100%" },
-              attrs: { data: _vm.list, height: "250", border: "" },
+              attrs: { data: _vm.list, height: "800", border: "" },
             },
             [
               _c("el-table-column", {
@@ -405,11 +405,22 @@ var render = function () {
                           {
                             on: {
                               click: function ($event) {
-                                return _vm.edit(scope.row)
+                                return _vm.showEditWindow(scope.row)
                               },
                             },
                           },
                           [_vm._v(" 编辑 ")]
+                        ),
+                        _c(
+                          "el-button",
+                          {
+                            on: {
+                              click: function ($event) {
+                                return _vm.deleteApi(scope.row)
+                              },
+                            },
+                          },
+                          [_vm._v(" 删除 ")]
                         ),
                       ]
                     },
@@ -730,7 +741,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
 /* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_15__);
 /* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
-/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
+/* harmony import */ var _util_time__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../util/time */ "./src/util/time.js");
+/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
 
 
 
@@ -802,6 +814,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -811,7 +825,7 @@ __webpack_require__.r(__webpack_exports__);
     "el-switch": (element_ui_lib_switch__WEBPACK_IMPORTED_MODULE_11___default()),
     "el-button": (element_ui_lib_button__WEBPACK_IMPORTED_MODULE_9___default()),
     "el-table-column": (element_ui_lib_table_column__WEBPACK_IMPORTED_MODULE_7___default()),
-    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_17__["default"],
+    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_18__["default"],
     "el-dialog": (element_ui_lib_dialog__WEBPACK_IMPORTED_MODULE_5___default())
   },
   mounted: function mounted() {
@@ -826,7 +840,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    edit: function edit(row) {
+    showEditWindow: function showEditWindow(row) {
       this.editRow = row;
       this.view = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
       this.dialogVisible = true;
@@ -843,7 +857,7 @@ __webpack_require__.r(__webpack_exports__);
             var _data = JSON.parse(item.data);
 
             return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__["default"])({}, item), {}, {
-              updateTime: _data.time,
+              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_17__.formatTime)(_data.time),
               data: _data.data
             });
           } catch (error) {
@@ -879,6 +893,17 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).catch(function () {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
+      });
+    },
+    deleteApi: function deleteApi(row) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_16__.deleteApi)(row.name).then(function (data) {
+        if (data.code !== 200) {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
+        } else {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("删除成功");
+        }
+      }).catch(function () {
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
       });
     }
   }
@@ -928,6 +953,7 @@ new vue__WEBPACK_IMPORTED_MODULE_5__["default"]({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "deleteApi": function() { return /* binding */ deleteApi; },
 /* harmony export */   "getApiList": function() { return /* binding */ getApiList; },
 /* harmony export */   "updateApiData": function() { return /* binding */ updateApiData; },
 /* harmony export */   "updateApiMock": function() { return /* binding */ updateApiMock; }
@@ -971,6 +997,37 @@ function updateApiMock(name, mock) {
     return response.json();
   });
 }
+function deleteApi(name) {
+  return fetch("/cgi-bin/delete-api", {
+    method: "post",
+    body: JSON.stringify({
+      name: name
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(function (response) {
+    return response.json();
+  });
+}
+
+/***/ }),
+
+/***/ "./src/util/time.js":
+/*!**************************!*\
+  !*** ./src/util/time.js ***!
+  \**************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "formatTime": function() { return /* binding */ formatTime; }
+/* harmony export */ });
+var formatTime = function formatTime(time) {
+  var t = new Date(time);
+  return t.getMonth() + "/" + t.getDate() + " " + t.getHours() + ":" + t.getMinutes() + ":" + t.getSeconds();
+};
 
 /***/ }),
 
