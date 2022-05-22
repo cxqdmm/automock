@@ -72,7 +72,8 @@
     </div>
     <div class="list-footer"></div>
     <el-dialog
-      title="提示"
+      title="编辑"
+      fullscreen
       :visible.sync="dialogVisible"
       width="1000px"
       :before-close="handleClose"
@@ -147,9 +148,13 @@ export default {
     },
     showEditWindow(row) {
       this.editRow = row;
-      this.view =
-        typeof row.data === "string" ? JSON.parse(row.data) : row.data;
-      this.dialogVisible = true;
+      try {
+        this.view =
+          typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+        this.dialogVisible = true;
+      } catch (error) {
+        Message.error(error.message);
+      }
     },
     handleClose() {
       this.dialogVisible = false;
@@ -219,7 +224,15 @@ export default {
 
 <style scoped>
 .editor {
-  height: 400px;
+  height: 100%;
+}
+.list /deep/ .el-dialog {
+  display: flex;
+  flex-direction: column;
+}
+/deep/ .el-dialog__body {
+  flex: 1;
+  padding: 0;
 }
 .list-head {
   display: flex;

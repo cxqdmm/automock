@@ -523,7 +523,8 @@ var render = function () {
         "el-dialog",
         {
           attrs: {
-            title: "提示",
+            title: "编辑",
+            fullscreen: "",
             visible: _vm.dialogVisible,
             width: "1000px",
             "before-close": _vm.handleClose,
@@ -912,6 +913,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -962,8 +964,13 @@ __webpack_require__.r(__webpack_exports__);
 
     showEditWindow(row) {
       this.editRow = row;
-      this.view = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
-      this.dialogVisible = true;
+
+      try {
+        this.view = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+        this.dialogVisible = true;
+      } catch (error) {
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error(error.message);
+      }
     },
 
     handleClose() {
@@ -1206,7 +1213,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n  align-items: center;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n.list-head-item[data-v-227179ae] {\n  font-size: 14px;\n  margin-right: 20px;\n}\n.hightlight[data-v-227179ae] {\n  color: blue;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 100%;\n}\n.list[data-v-227179ae] .el-dialog {\n  display: flex;\n  flex-direction: column;\n}\n[data-v-227179ae] .el-dialog__body {\n  flex: 1;\n  padding: 0;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n  align-items: center;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n.list-head-item[data-v-227179ae] {\n  font-size: 14px;\n  margin-right: 20px;\n}\n.hightlight[data-v-227179ae] {\n  color: blue;\n}\n", ""]);
 // Exports
 /* harmony default export */ __webpack_exports__["default"] = (___CSS_LOADER_EXPORT___);
 
