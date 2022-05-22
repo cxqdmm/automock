@@ -444,6 +444,13 @@ var render = function () {
                 ]),
               }),
               _c("el-table-column", {
+                attrs: {
+                  prop: "mockTime",
+                  label: "命中mock时间",
+                  width: "200",
+                },
+              }),
+              _c("el-table-column", {
                 attrs: { prop: "updateTime", label: "更新时间", width: "200" },
               }),
               _c("el-table-column", {
@@ -972,6 +979,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -1086,7 +1095,8 @@ __webpack_require__.r(__webpack_exports__);
             var _data = JSON.parse(item.data);
 
             return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])({}, item), _data), {}, {
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(_data.time)
+              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(_data.time),
+              mockTime: item.mockTime ? (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(item.mockTime) : ""
             });
           } catch (error) {
             return item;

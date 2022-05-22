@@ -41,6 +41,8 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="mockTime" label="命中mock时间" width="200">
+        </el-table-column>
         <el-table-column prop="updateTime" label="更新时间" width="200">
         </el-table-column>
         <el-table-column label="mock" width="100">
@@ -210,6 +212,7 @@ export default {
               ...item,
               ...data,
               updateTime: formatTime(data.time),
+              mockTime: item.mockTime ? formatTime(item.mockTime) : "",
             };
           } catch (error) {
             return item;
