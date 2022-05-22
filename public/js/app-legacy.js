@@ -352,7 +352,7 @@ var render = function () {
           _c(
             "el-input",
             {
-              staticClass: "list-head-name",
+              staticClass: "list-head-item list-head-name",
               attrs: { clearable: "", placeholder: "接口名模糊匹配" },
               nativeOn: {
                 keyup: function ($event) {
@@ -382,6 +382,32 @@ var render = function () {
             ],
             1
           ),
+          _c(
+            "div",
+            { staticClass: "list-head-item" },
+            [
+              _c("span", [_vm._v("mock前置: ")]),
+              _c("el-switch", {
+                attrs: {
+                  "active-color": "#13ce66",
+                  "inactive-color": "#ff4949",
+                },
+                on: {
+                  input: function ($event) {
+                    return _vm.sortList()
+                  },
+                },
+                model: {
+                  value: _vm.isMockFront,
+                  callback: function ($$v) {
+                    _vm.isMockFront = $$v
+                  },
+                  expression: "isMockFront",
+                },
+              }),
+            ],
+            1
+          ),
         ],
         1
       ),
@@ -398,11 +424,24 @@ var render = function () {
                 height: "800",
                 border: "",
                 size: "mini",
+                "row-key": "name",
               },
             },
             [
               _c("el-table-column", {
                 attrs: { prop: "name", label: "接口名" },
+                scopedSlots: _vm._u([
+                  {
+                    key: "default",
+                    fn: function (scope) {
+                      return [
+                        _c("div", { class: { hightlight: scope.row.mock } }, [
+                          _vm._v(" " + _vm._s(scope.row.name) + " "),
+                        ]),
+                      ]
+                    },
+                  },
+                ]),
               }),
               _c("el-table-column", {
                 attrs: { prop: "updateTime", label: "更新时间", width: "200" },
@@ -459,10 +498,10 @@ var render = function () {
                         _c(
                           "el-button",
                           {
-                            attrs: { size: "mini" },
+                            attrs: { type: "danger", size: "mini" },
                             on: {
                               click: function ($event) {
-                                return _vm.deleteApi(scope.row)
+                                return _vm.deleteApi(scope.row, scope.$index)
                               },
                             },
                           },
@@ -755,13 +794,13 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var element_ui_lib_theme_chalk_message_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! element-ui/lib/theme-chalk/message.css */ "./node_modules/element-ui/lib/theme-chalk/message.css");
-/* harmony import */ var element_ui_lib_theme_chalk_message_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_message_css__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var element_ui_lib_theme_chalk_base_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! element-ui/lib/theme-chalk/base.css */ "./node_modules/element-ui/lib/theme-chalk/base.css");
-/* harmony import */ var element_ui_lib_theme_chalk_base_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_base_css__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! element-ui/lib/message */ "./node_modules/element-ui/lib/message.js");
-/* harmony import */ var element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/objectSpread2.js */ "./node_modules/@babel/runtime/helpers/esm/objectSpread2.js");
+/* harmony import */ var _Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/objectSpread2.js */ "./node_modules/@babel/runtime/helpers/esm/objectSpread2.js");
+/* harmony import */ var element_ui_lib_theme_chalk_message_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! element-ui/lib/theme-chalk/message.css */ "./node_modules/element-ui/lib/theme-chalk/message.css");
+/* harmony import */ var element_ui_lib_theme_chalk_message_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_message_css__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var element_ui_lib_theme_chalk_base_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! element-ui/lib/theme-chalk/base.css */ "./node_modules/element-ui/lib/theme-chalk/base.css");
+/* harmony import */ var element_ui_lib_theme_chalk_base_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_base_css__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! element-ui/lib/message */ "./node_modules/element-ui/lib/message.js");
+/* harmony import */ var element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var element_ui_lib_theme_chalk_dialog_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! element-ui/lib/theme-chalk/dialog.css */ "./node_modules/element-ui/lib/theme-chalk/dialog.css");
 /* harmony import */ var element_ui_lib_theme_chalk_dialog_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_dialog_css__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var element_ui_lib_dialog__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! element-ui/lib/dialog */ "./node_modules/element-ui/lib/dialog.js");
@@ -786,17 +825,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_14__);
 /* harmony import */ var element_ui_lib_input__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! element-ui/lib/input */ "./node_modules/element-ui/lib/input.js");
 /* harmony import */ var element_ui_lib_input__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_input__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! core-js/modules/es.array.map.js */ "./node_modules/core-js/modules/es.array.map.js");
-/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
-/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_17__);
-/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
-/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_18__);
-/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! core-js/modules/es.string.search.js */ "./node_modules/core-js/modules/es.string.search.js");
-/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_19___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_19__);
-/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
-/* harmony import */ var _util_time__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../util/time */ "./src/util/time.js");
-/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
+/* harmony import */ var core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! core-js/modules/es.array.filter.js */ "./node_modules/core-js/modules/es.array.filter.js");
+/* harmony import */ var core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! core-js/modules/es.object.to-string.js */ "./node_modules/core-js/modules/es.object.to-string.js");
+/* harmony import */ var core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var core_js_modules_es_array_concat_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! core-js/modules/es.array.concat.js */ "./node_modules/core-js/modules/es.array.concat.js");
+/* harmony import */ var core_js_modules_es_array_concat_js__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_concat_js__WEBPACK_IMPORTED_MODULE_18__);
+/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
+/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_19___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_19__);
+/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! core-js/modules/es.array.splice.js */ "./node_modules/core-js/modules/es.array.splice.js");
+/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_20___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_20__);
+/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
+/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_21__);
+/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! core-js/modules/es.string.search.js */ "./node_modules/core-js/modules/es.string.search.js");
+/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_22__);
+/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! core-js/modules/es.array.map.js */ "./node_modules/core-js/modules/es.array.map.js");
+/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_23___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_23__);
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
+/* harmony import */ var _util_time__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../util/time */ "./src/util/time.js");
+/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
 
 
 
@@ -823,6 +870,31 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -909,24 +981,42 @@ __webpack_require__.r(__webpack_exports__);
     "el-switch": (element_ui_lib_switch__WEBPACK_IMPORTED_MODULE_11___default()),
     "el-button": (element_ui_lib_button__WEBPACK_IMPORTED_MODULE_9___default()),
     "el-table-column": (element_ui_lib_table_column__WEBPACK_IMPORTED_MODULE_7___default()),
-    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_22__["default"],
+    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_26__["default"],
     "el-dialog": (element_ui_lib_dialog__WEBPACK_IMPORTED_MODULE_5___default())
   },
   mounted: function mounted() {
     console.log("请求数据");
-    this.refreshList();
+    this.searchApi();
   },
   data: function data() {
     return {
       search: {
         name: ""
       },
+      isMockFront: true,
+      // mock 项前置
       list: [],
       dialogVisible: false,
       view: {}
     };
   },
   methods: {
+    sortList: function sortList() {
+      this.list = this.sortByMock(this.list);
+    },
+    sortByMock: function sortByMock(list) {
+      if (this.isMockFront) {
+        var l1 = list.filter(function (item) {
+          return item.mock;
+        });
+        var l2 = list.filter(function (item) {
+          return !item.mock;
+        });
+        return l1.concat(l2);
+      }
+
+      return list;
+    },
     showEditWindow: function showEditWindow(row) {
       this.editRow = row;
       this.view = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
@@ -935,81 +1025,67 @@ __webpack_require__.r(__webpack_exports__);
     handleClose: function handleClose() {
       this.dialogVisible = false;
     },
-    refreshList: function refreshList() {
-      var _this = this;
-
-      (0,_service__WEBPACK_IMPORTED_MODULE_20__.search)().then(function (data) {
-        _this.list = (data || []).map(function (item) {
-          try {
-            var _data = JSON.parse(item.data);
-
-            return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__["default"])({}, item), {}, {
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_21__.formatTime)(_data.time),
-              data: _data.data
-            });
-          } catch (error) {
-            return item;
-          }
-        });
-      });
-    },
     updateApiData: function updateApiData() {
-      var _this2 = this;
+      var _this = this;
 
       this.editRow.data = this.view;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_20__.updateApiData)(this.editRow.name, this.view).then(function (data) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_24__.updateApiData)(this.editRow.name, this.view).then(function (data) {
         if (data.code !== 200) {
-          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
         } else {
-          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("更新成功");
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("更新成功");
 
-          _this2.dialogVisible = false;
+          _this.dialogVisible = false;
         }
       }).catch(function () {
-        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
       });
     },
     updateMock: function updateMock(mock, row) {
-      (0,_service__WEBPACK_IMPORTED_MODULE_20__.updateApiMock)(row.name, mock).then(function (data) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_24__.updateApiMock)(row.name, mock).then(function (data) {
         if (data.code !== 200) {
-          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
         } else {
-          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("更新成功");
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("更新成功");
         }
       }).catch(function () {
-        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
       });
     },
-    deleteApi: function deleteApi(row) {
-      (0,_service__WEBPACK_IMPORTED_MODULE_20__.deleteApi)(row.name).then(function (data) {
+    deleteApi: function deleteApi(row, index) {
+      var _this2 = this;
+
+      (0,_service__WEBPACK_IMPORTED_MODULE_24__.deleteApi)(row.name).then(function (data) {
         if (data.code !== 200) {
-          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
         } else {
-          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("删除成功");
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("删除成功");
+
+          _this2.list.splice(index, 1);
         }
       }).catch(function () {
-        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
       });
     },
     searchApi: function searchApi() {
       var _this3 = this;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_20__.search)({
+      (0,_service__WEBPACK_IMPORTED_MODULE_24__.search)({
         name: this.search.name
       }).then(function (data) {
-        _this3.list = (data || []).map(function (item) {
+        var list = (data || []).map(function (item) {
           try {
-            var _data2 = JSON.parse(item.data);
+            var _data = JSON.parse(item.data);
 
-            return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_3__["default"])({}, item), {}, {
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_21__.formatTime)(_data2.time),
-              data: _data2.data
+            return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])({}, item), _data), {}, {
+              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(_data.time)
             });
           } catch (error) {
             return item;
           }
         });
+        _this3.list = _this3.sortByMock(list);
       });
     }
   }
@@ -1208,7 +1284,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n  align-items: center;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n.list-head-item[data-v-227179ae] {\n  font-size: 14px;\n  margin-right: 20px;\n}\n.hightlight[data-v-227179ae] {\n  color: blue;\n}\n", ""]);
 // Exports
 /* harmony default export */ __webpack_exports__["default"] = (___CSS_LOADER_EXPORT___);
 

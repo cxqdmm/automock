@@ -2,7 +2,7 @@
   <div class="list">
     <div class="list-head">
       <el-input
-        class="list-head-name"
+        class="list-head-item list-head-name"
         clearable
         placeholder="接口名模糊匹配"
         v-model="search.name"
@@ -14,6 +14,16 @@
           @click="searchApi"
         ></el-button>
       </el-input>
+      <div class="list-head-item">
+        <span>mock前置: </span>
+        <el-switch
+          v-model="isMockFront"
+          @input="sortList()"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+        >
+        </el-switch>
+      </div>
     </div>
     <div class="list-body">
       <el-table
@@ -22,8 +32,15 @@
         border
         style="width: 100%"
         size="mini"
+        row-key="name"
       >
-        <el-table-column prop="name" label="接口名"> </el-table-column>
+        <el-table-column prop="name" label="接口名">
+          <template slot-scope="scope">
+            <div :class="{ hightlight: scope.row.mock }">
+              {{ scope.row.name }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="updateTime" label="更新时间" width="200">
         </el-table-column>
         <el-table-column label="mock" width="100">
@@ -42,7 +59,11 @@
             <el-button size="mini" @click="showEditWindow(scope.row)">
               编辑
             </el-button>
-            <el-button size="mini" @click="deleteApi(scope.row)">
+            <el-button
+              type="danger"
+              size="mini"
+              @click="deleteApi(scope.row, scope.$index)"
+            >
               删除
             </el-button>
           </template>
@@ -99,19 +120,31 @@ export default {
   },
   mounted() {
     console.log("请求数据");
-    this.refreshList();
+    this.searchApi();
   },
   data() {
     return {
       search: {
         name: "",
       },
+      isMockFront: true, // mock 项前置
       list: [],
       dialogVisible: false,
       view: {},
     };
   },
   methods: {
+    sortList() {
+      this.list = this.sortByMock(this.list);
+    },
+    sortByMock(list) {
+      if (this.isMockFront) {
+        const l1 = list.filter((item) => item.mock);
+        const l2 = list.filter((item) => !item.mock);
+        return l1.concat(l2);
+      }
+      return list;
+    },
     showEditWindow(row) {
       this.editRow = row;
       this.view =
@@ -120,22 +153,6 @@ export default {
     },
     handleClose() {
       this.dialogVisible = false;
-    },
-    refreshList() {
-      search().then((data) => {
-        this.list = (data || []).map((item) => {
-          try {
-            const data = JSON.parse(item.data);
-            return {
-              ...item,
-              updateTime: formatTime(data.time),
-              data: data.data,
-            };
-          } catch (error) {
-            return item;
-          }
-        });
-      });
     },
     updateApiData() {
       this.editRow.data = this.view;
@@ -165,13 +182,14 @@ export default {
           Message.error("更新失败");
         });
     },
-    deleteApi(row) {
+    deleteApi(row, index) {
       deleteApi(row.name)
         .then((data) => {
           if (data.code !== 200) {
             Message.error("删除失败");
           } else {
             Message.success("删除成功");
+            this.list.splice(index, 1);
           }
         })
         .catch(() => {
@@ -180,18 +198,19 @@ export default {
     },
     searchApi() {
       search({ name: this.search.name }).then((data) => {
-        this.list = (data || []).map((item) => {
+        const list = (data || []).map((item) => {
           try {
             const data = JSON.parse(item.data);
             return {
               ...item,
+              ...data,
               updateTime: formatTime(data.time),
-              data: data.data,
             };
           } catch (error) {
             return item;
           }
         });
+        this.list = this.sortByMock(list);
       });
     },
   },
@@ -205,8 +224,16 @@ export default {
 .list-head {
   display: flex;
   margin-bottom: 10px;
+  align-items: center;
 }
 .list-head-name {
   width: 400px;
+}
+.list-head-item {
+  font-size: 14px;
+  margin-right: 20px;
+}
+.hightlight {
+  color: blue;
 }
 </style>

@@ -352,7 +352,7 @@ var render = function () {
           _c(
             "el-input",
             {
-              staticClass: "list-head-name",
+              staticClass: "list-head-item list-head-name",
               attrs: { clearable: "", placeholder: "接口名模糊匹配" },
               nativeOn: {
                 keyup: function ($event) {
@@ -382,6 +382,32 @@ var render = function () {
             ],
             1
           ),
+          _c(
+            "div",
+            { staticClass: "list-head-item" },
+            [
+              _c("span", [_vm._v("mock前置: ")]),
+              _c("el-switch", {
+                attrs: {
+                  "active-color": "#13ce66",
+                  "inactive-color": "#ff4949",
+                },
+                on: {
+                  input: function ($event) {
+                    return _vm.sortList()
+                  },
+                },
+                model: {
+                  value: _vm.isMockFront,
+                  callback: function ($$v) {
+                    _vm.isMockFront = $$v
+                  },
+                  expression: "isMockFront",
+                },
+              }),
+            ],
+            1
+          ),
         ],
         1
       ),
@@ -398,11 +424,24 @@ var render = function () {
                 height: "800",
                 border: "",
                 size: "mini",
+                "row-key": "name",
               },
             },
             [
               _c("el-table-column", {
                 attrs: { prop: "name", label: "接口名" },
+                scopedSlots: _vm._u([
+                  {
+                    key: "default",
+                    fn: function (scope) {
+                      return [
+                        _c("div", { class: { hightlight: scope.row.mock } }, [
+                          _vm._v(" " + _vm._s(scope.row.name) + " "),
+                        ]),
+                      ]
+                    },
+                  },
+                ]),
               }),
               _c("el-table-column", {
                 attrs: { prop: "updateTime", label: "更新时间", width: "200" },
@@ -459,10 +498,10 @@ var render = function () {
                         _c(
                           "el-button",
                           {
-                            attrs: { size: "mini" },
+                            attrs: { type: "danger", size: "mini" },
                             on: {
                               click: function ($event) {
-                                return _vm.deleteApi(scope.row)
+                                return _vm.deleteApi(scope.row, scope.$index)
                               },
                             },
                           },
@@ -852,6 +891,27 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -869,7 +929,7 @@ __webpack_require__.r(__webpack_exports__);
 
   mounted() {
     console.log("请求数据");
-    this.refreshList();
+    this.searchApi();
   },
 
   data() {
@@ -877,6 +937,8 @@ __webpack_require__.r(__webpack_exports__);
       search: {
         name: ""
       },
+      isMockFront: true,
+      // mock 项前置
       list: [],
       dialogVisible: false,
       view: {}
@@ -884,6 +946,20 @@ __webpack_require__.r(__webpack_exports__);
   },
 
   methods: {
+    sortList() {
+      this.list = this.sortByMock(this.list);
+    },
+
+    sortByMock(list) {
+      if (this.isMockFront) {
+        const l1 = list.filter(item => item.mock);
+        const l2 = list.filter(item => !item.mock);
+        return l1.concat(l2);
+      }
+
+      return list;
+    },
+
     showEditWindow(row) {
       this.editRow = row;
       this.view = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
@@ -892,22 +968,6 @@ __webpack_require__.r(__webpack_exports__);
 
     handleClose() {
       this.dialogVisible = false;
-    },
-
-    refreshList() {
-      (0,_service__WEBPACK_IMPORTED_MODULE_15__.search)().then(data => {
-        this.list = (data || []).map(item => {
-          try {
-            const data = JSON.parse(item.data);
-            return { ...item,
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time),
-              data: data.data
-            };
-          } catch (error) {
-            return item;
-          }
-        });
-      });
     },
 
     updateApiData() {
@@ -937,12 +997,14 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
 
-    deleteApi(row) {
+    deleteApi(row, index) {
       (0,_service__WEBPACK_IMPORTED_MODULE_15__.deleteApi)(row.name).then(data => {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
         } else {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("删除成功");
+
+          this.list.splice(index, 1);
         }
       }).catch(() => {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
@@ -953,17 +1015,18 @@ __webpack_require__.r(__webpack_exports__);
       (0,_service__WEBPACK_IMPORTED_MODULE_15__.search)({
         name: this.search.name
       }).then(data => {
-        this.list = (data || []).map(item => {
+        const list = (data || []).map(item => {
           try {
             const data = JSON.parse(item.data);
             return { ...item,
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time),
-              data: data.data
+              ...data,
+              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time)
             };
           } catch (error) {
             return item;
           }
         });
+        this.list = this.sortByMock(list);
       });
     }
 
@@ -1143,7 +1206,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.editor[data-v-227179ae] {\n  height: 400px;\n}\n.list-head[data-v-227179ae] {\n  display: flex;\n  margin-bottom: 10px;\n  align-items: center;\n}\n.list-head-name[data-v-227179ae] {\n  width: 400px;\n}\n.list-head-item[data-v-227179ae] {\n  font-size: 14px;\n  margin-right: 20px;\n}\n.hightlight[data-v-227179ae] {\n  color: blue;\n}\n", ""]);
 // Exports
 /* harmony default export */ __webpack_exports__["default"] = (___CSS_LOADER_EXPORT___);
 
