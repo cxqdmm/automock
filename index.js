@@ -1,5 +1,5 @@
 exports.uiServer = require("./lib/uiServer");
-// exports.rulesServer = require('./lib/rulesServer');
+exports.rulesServer = require("./lib/rulesServer");
 // exports.tunnelRulesServer = require('./lib/tunnelRulesServer');
 // exports.resRulesServer = require('./lib/resRulesServer');
 // exports.statsServer = require('./lib/statsServer');
