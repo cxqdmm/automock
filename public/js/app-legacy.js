@@ -1002,9 +1002,9 @@ __webpack_require__.r(__webpack_exports__);
     "el-dialog": (element_ui_lib_dialog__WEBPACK_IMPORTED_MODULE_5___default())
   },
   mounted: function mounted() {
-    console.log("请求数据");
     this.searchApi();
     this.autoUpdateList();
+    document.addEventListener("visibilitychange", this.pageShow);
   },
   data: function data() {
     return {
@@ -1018,6 +1018,9 @@ __webpack_require__.r(__webpack_exports__);
       view: {}
     };
   },
+  beforeDestroy: function beforeDestroy() {
+    document.removeEventListener("visibilitychange", this.pageShow);
+  },
   computed: {
     lockAutoUpdate: function lockAutoUpdate() {
       if (this.dialogVisible) {
@@ -1028,6 +1031,11 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    pageShow: function pageShow() {
+      if (document.visibilityState === "visible") {
+        this.searchApi();
+      }
+    },
     autoUpdateList: function autoUpdateList() {
       var _this = this;
 

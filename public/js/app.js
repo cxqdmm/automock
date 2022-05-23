@@ -945,9 +945,9 @@ __webpack_require__.r(__webpack_exports__);
   },
 
   mounted() {
-    console.log("请求数据");
     this.searchApi();
     this.autoUpdateList();
+    document.addEventListener("visibilitychange", this.pageShow);
   },
 
   data() {
@@ -963,6 +963,10 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
 
+  beforeDestroy() {
+    document.removeEventListener("visibilitychange", this.pageShow);
+  },
+
   computed: {
     lockAutoUpdate() {
       if (this.dialogVisible) {
@@ -974,6 +978,12 @@ __webpack_require__.r(__webpack_exports__);
 
   },
   methods: {
+    pageShow() {
+      if (document.visibilityState === "visible") {
+        this.searchApi();
+      }
+    },
+
     autoUpdateList() {
       setInterval(() => {
         (0,_service__WEBPACK_IMPORTED_MODULE_15__.check)().then(res => {

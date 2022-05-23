@@ -118,6 +118,7 @@ import {
 } from "../service";
 import { formatTime } from "../util/time";
 import CodeEditor from "./code-editor";
+
 export default {
   name: "api-list",
   components: {
@@ -130,9 +131,9 @@ export default {
     "el-dialog": Dialog,
   },
   mounted() {
-    console.log("请求数据");
     this.searchApi();
     this.autoUpdateList();
+    document.addEventListener("visibilitychange", this.pageShow);
   },
   data() {
     return {
@@ -145,6 +146,9 @@ export default {
       view: {},
     };
   },
+  beforeDestroy() {
+    document.removeEventListener("visibilitychange", this.pageShow);
+  },
   computed: {
     lockAutoUpdate() {
       if (this.dialogVisible) {
@@ -154,6 +158,11 @@ export default {
     },
   },
   methods: {
+    pageShow() {
+      if (document.visibilityState === "visible") {
+        this.searchApi();
+      }
+    },
     autoUpdateList() {
       setInterval(() => {
         check().then((res) => {
