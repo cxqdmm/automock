@@ -383,6 +383,11 @@ var render = function () {
             1
           ),
           _c(
+            "el-button",
+            { staticClass: "list-head-item", on: { click: _vm.deleteAll } },
+            [_vm._v("清空列表")]
+          ),
+          _c(
             "div",
             { staticClass: "list-head-item" },
             [
@@ -981,6 +986,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -998,6 +1004,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     console.log("请求数据");
     this.searchApi();
+    this.autoUpdateList();
   },
   data: function data() {
     return {
@@ -1011,7 +1018,32 @@ __webpack_require__.r(__webpack_exports__);
       view: {}
     };
   },
+  computed: {
+    lockAutoUpdate: function lockAutoUpdate() {
+      if (this.dialogVisible) {
+        return true;
+      }
+
+      return false;
+    }
+  },
   methods: {
+    autoUpdateList: function autoUpdateList() {
+      var _this = this;
+
+      setInterval(function () {
+        (0,_service__WEBPACK_IMPORTED_MODULE_24__.check)().then(function (res) {
+          var code = res.code,
+              data = res.data;
+
+          if (code === 200 && data) {
+            if (!_this.lockAutoUpdate) {
+              _this.searchApi();
+            }
+          }
+        });
+      }, 2000);
+    },
     sortList: function sortList() {
       this.list = this.sortByMock(this.list);
     },
@@ -1042,17 +1074,25 @@ __webpack_require__.r(__webpack_exports__);
       this.dialogVisible = false;
     },
     updateApiData: function updateApiData() {
-      var _this = this;
+      var _this2 = this;
 
       this.editRow.data = this.view;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_24__.updateApiData)(this.editRow.name, this.view).then(function (data) {
-        if (data.code !== 200) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_24__.updateApiData)(this.editRow.name, this.view).then(function (res) {
+        var code = res.code,
+            data = res.data;
+
+        if (code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
         } else {
+          var parseData = JSON.parse(data.data);
+          _this2.editRow.time = parseData.time;
+          _this2.editRow.data = parseData.data;
+          _this2.editRow.updateTime = (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(parseData.time);
+
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("更新成功");
 
-          _this.dialogVisible = false;
+          _this2.dialogVisible = false;
         }
       }).catch(function () {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
@@ -1070,7 +1110,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     deleteApi: function deleteApi(row, index) {
-      var _this2 = this;
+      var _this3 = this;
 
       (0,_service__WEBPACK_IMPORTED_MODULE_24__.deleteApi)(row.name).then(function (data) {
         if (data.code !== 200) {
@@ -1078,31 +1118,56 @@ __webpack_require__.r(__webpack_exports__);
         } else {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("删除成功");
 
-          _this2.list.splice(index, 1);
+          _this3.list.splice(index, 1);
+        }
+      }).catch(function () {
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
+      });
+    },
+    deleteAll: function deleteAll() {
+      var _this4 = this;
+
+      (0,_service__WEBPACK_IMPORTED_MODULE_24__.deleteAllApi)().then(function (data) {
+        if (data.code !== 200) {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
+        } else {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("删除成功");
+
+          _this4.list = [];
         }
       }).catch(function () {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
       });
     },
     searchApi: function searchApi() {
-      var _this3 = this;
+      var _this5 = this;
 
       (0,_service__WEBPACK_IMPORTED_MODULE_24__.search)({
         name: this.search.name
-      }).then(function (data) {
-        var list = (data || []).map(function (item) {
-          try {
-            var _data = JSON.parse(item.data);
+      }).then(function (res) {
+        var _ref = res || {},
+            code = _ref.code,
+            data = _ref.data;
 
-            return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])({}, item), _data), {}, {
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(_data.time),
-              mockTime: item.mockTime ? (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(item.mockTime) : ""
-            });
-          } catch (error) {
-            return item;
-          }
-        });
-        _this3.list = _this3.sortByMock(list);
+        if (code === 200) {
+          var list = (data || []).map(function (item) {
+            try {
+              var _data = JSON.parse(item.data);
+
+              return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])({}, item), _data), {}, {
+                updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(_data.time),
+                mockTime: item.mockTime ? (0,_util_time__WEBPACK_IMPORTED_MODULE_25__.formatTime)(item.mockTime) : ""
+              });
+            } catch (error) {
+              return item;
+            }
+          });
+          _this5.list = _this5.sortByMock(list);
+        } else {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("列表请求失败");
+        }
+      }).catch(function (err) {
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error(err);
       });
     }
   }
@@ -1152,6 +1217,8 @@ new vue__WEBPACK_IMPORTED_MODULE_5__["default"]({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "check": function() { return /* binding */ check; },
+/* harmony export */   "deleteAllApi": function() { return /* binding */ deleteAllApi; },
 /* harmony export */   "deleteApi": function() { return /* binding */ deleteApi; },
 /* harmony export */   "search": function() { return /* binding */ search; },
 /* harmony export */   "updateApiData": function() { return /* binding */ updateApiData; },
@@ -1170,9 +1237,12 @@ function search(params) {
   var str = qs__WEBPACK_IMPORTED_MODULE_2___default().stringify(params);
   return fetch("/cgi-bin/api-list".concat(str ? "?" + str : "")).then(function (response) {
     return response.json();
-  }); // return fetch("/cgi-bin/api-list").then((response) => {
-  //   return response.json();
-  // });
+  });
+}
+function check() {
+  return fetch("/cgi-bin/check-api-list").then(function (response) {
+    return response.json();
+  });
 }
 function updateApiData(name, data) {
   return fetch("/cgi-bin/update-api-data", {
@@ -1204,6 +1274,19 @@ function updateApiMock(name, mock) {
 }
 function deleteApi(name) {
   return fetch("/cgi-bin/delete-api", {
+    method: "post",
+    body: JSON.stringify({
+      name: name
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(function (response) {
+    return response.json();
+  });
+}
+function deleteAllApi(name) {
+  return fetch("/cgi-bin/delete-all-api", {
     method: "post",
     body: JSON.stringify({
       name: name

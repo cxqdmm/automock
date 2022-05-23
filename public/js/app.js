@@ -383,6 +383,11 @@ var render = function () {
             1
           ),
           _c(
+            "el-button",
+            { staticClass: "list-head-item", on: { click: _vm.deleteAll } },
+            [_vm._v("清空列表")]
+          ),
+          _c(
             "div",
             { staticClass: "list-head-item" },
             [
@@ -923,6 +928,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -941,6 +947,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted() {
     console.log("请求数据");
     this.searchApi();
+    this.autoUpdateList();
   },
 
   data() {
@@ -956,7 +963,34 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
 
+  computed: {
+    lockAutoUpdate() {
+      if (this.dialogVisible) {
+        return true;
+      }
+
+      return false;
+    }
+
+  },
   methods: {
+    autoUpdateList() {
+      setInterval(() => {
+        (0,_service__WEBPACK_IMPORTED_MODULE_15__.check)().then(res => {
+          const {
+            code,
+            data
+          } = res;
+
+          if (code === 200 && data) {
+            if (!this.lockAutoUpdate) {
+              this.searchApi();
+            }
+          }
+        });
+      }, 2000);
+    },
+
     sortList() {
       this.list = this.sortByMock(this.list);
     },
@@ -988,10 +1022,20 @@ __webpack_require__.r(__webpack_exports__);
 
     updateApiData() {
       this.editRow.data = this.view;
-      (0,_service__WEBPACK_IMPORTED_MODULE_15__.updateApiData)(this.editRow.name, this.view).then(data => {
-        if (data.code !== 200) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.updateApiData)(this.editRow.name, this.view).then(res => {
+        const {
+          code,
+          data
+        } = res;
+
+        if (code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("更新失败");
         } else {
+          const parseData = JSON.parse(data.data);
+          this.editRow.time = parseData.time;
+          this.editRow.data = parseData.data;
+          this.editRow.updateTime = (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(parseData.time);
+
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("更新成功");
 
           this.dialogVisible = false;
@@ -1027,23 +1071,48 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
 
+    deleteAll() {
+      (0,_service__WEBPACK_IMPORTED_MODULE_15__.deleteAllApi)().then(data => {
+        if (data.code !== 200) {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
+        } else {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("删除成功");
+
+          this.list = [];
+        }
+      }).catch(() => {
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
+      });
+    },
+
     searchApi() {
       (0,_service__WEBPACK_IMPORTED_MODULE_15__.search)({
         name: this.search.name
-      }).then(data => {
-        const list = (data || []).map(item => {
-          try {
-            const data = JSON.parse(item.data);
-            return { ...item,
-              ...data,
-              updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time),
-              mockTime: item.mockTime ? (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(item.mockTime) : ""
-            };
-          } catch (error) {
-            return item;
-          }
-        });
-        this.list = this.sortByMock(list);
+      }).then(res => {
+        const {
+          code,
+          data
+        } = res || {};
+
+        if (code === 200) {
+          const list = (data || []).map(item => {
+            try {
+              const data = JSON.parse(item.data);
+              return { ...item,
+                ...data,
+                updateTime: (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(data.time),
+                mockTime: item.mockTime ? (0,_util_time__WEBPACK_IMPORTED_MODULE_16__.formatTime)(item.mockTime) : ""
+              };
+            } catch (error) {
+              return item;
+            }
+          });
+          this.list = this.sortByMock(list);
+        } else {
+          element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("列表请求失败");
+        }
+      }).catch(err => {
+        element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error(err);
       });
     }
 
@@ -1080,6 +1149,8 @@ new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "check": function() { return /* binding */ check; },
+/* harmony export */   "deleteAllApi": function() { return /* binding */ deleteAllApi; },
 /* harmony export */   "deleteApi": function() { return /* binding */ deleteApi; },
 /* harmony export */   "search": function() { return /* binding */ search; },
 /* harmony export */   "updateApiData": function() { return /* binding */ updateApiData; },
@@ -1092,9 +1163,12 @@ function search(params) {
   const str = qs__WEBPACK_IMPORTED_MODULE_0___default().stringify(params);
   return fetch(`/cgi-bin/api-list${str ? "?" + str : ""}`).then(response => {
     return response.json();
-  }); // return fetch("/cgi-bin/api-list").then((response) => {
-  //   return response.json();
-  // });
+  });
+}
+function check() {
+  return fetch("/cgi-bin/check-api-list").then(response => {
+    return response.json();
+  });
 }
 function updateApiData(name, data) {
   return fetch("/cgi-bin/update-api-data", {
@@ -1126,6 +1200,19 @@ function updateApiMock(name, mock) {
 }
 function deleteApi(name) {
   return fetch("/cgi-bin/delete-api", {
+    method: "post",
+    body: JSON.stringify({
+      name
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(response => {
+    return response.json();
+  });
+}
+function deleteAllApi(name) {
+  return fetch("/cgi-bin/delete-all-api", {
     method: "post",
     body: JSON.stringify({
       name

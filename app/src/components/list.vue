@@ -14,6 +14,7 @@
           @click="searchApi"
         ></el-button>
       </el-input>
+      <el-button class="list-head-item" @click="deleteAll">清空列表</el-button>
       <div class="list-head-item">
         <span>mock前置: </span>
         <el-switch
@@ -107,7 +108,14 @@ import {
   Dialog,
   Message,
 } from "element-ui";
-import { search, updateApiData, updateApiMock, deleteApi } from "../service";
+import {
+  search,
+  updateApiData,
+  updateApiMock,
+  deleteApi,
+  deleteAllApi,
+  check,
+} from "../service";
 import { formatTime } from "../util/time";
 import CodeEditor from "./code-editor";
 export default {
@@ -124,6 +132,7 @@ export default {
   mounted() {
     console.log("请求数据");
     this.searchApi();
+    this.autoUpdateList();
   },
   data() {
     return {
@@ -136,7 +145,27 @@ export default {
       view: {},
     };
   },
+  computed: {
+    lockAutoUpdate() {
+      if (this.dialogVisible) {
+        return true;
+      }
+      return false;
+    },
+  },
   methods: {
+    autoUpdateList() {
+      setInterval(() => {
+        check().then((res) => {
+          const { code, data } = res;
+          if (code === 200 && data) {
+            if (!this.lockAutoUpdate) {
+              this.searchApi();
+            }
+          }
+        });
+      }, 2000);
+    },
     sortList() {
       this.list = this.sortByMock(this.list);
     },
@@ -164,10 +193,16 @@ export default {
     updateApiData() {
       this.editRow.data = this.view;
       updateApiData(this.editRow.name, this.view)
-        .then((data) => {
-          if (data.code !== 200) {
+        .then((res) => {
+          const { code, data } = res;
+          if (code !== 200) {
             Message.error("更新失败");
           } else {
+            const parseData = JSON.parse(data.data);
+            this.editRow.time = parseData.time;
+            this.editRow.data = parseData.data;
+            this.editRow.updateTime = formatTime(parseData.time);
+
             Message.success("更新成功");
             this.dialogVisible = false;
           }
@@ -203,23 +238,46 @@ export default {
           Message.error("删除失败");
         });
     },
-    searchApi() {
-      search({ name: this.search.name }).then((data) => {
-        const list = (data || []).map((item) => {
-          try {
-            const data = JSON.parse(item.data);
-            return {
-              ...item,
-              ...data,
-              updateTime: formatTime(data.time),
-              mockTime: item.mockTime ? formatTime(item.mockTime) : "",
-            };
-          } catch (error) {
-            return item;
+    deleteAll() {
+      deleteAllApi()
+        .then((data) => {
+          if (data.code !== 200) {
+            Message.error("删除失败");
+          } else {
+            Message.success("删除成功");
+            this.list = [];
           }
+        })
+        .catch(() => {
+          Message.error("删除失败");
         });
-        this.list = this.sortByMock(list);
-      });
+    },
+    searchApi() {
+      search({ name: this.search.name })
+        .then((res) => {
+          const { code, data } = res || {};
+          if (code === 200) {
+            const list = (data || []).map((item) => {
+              try {
+                const data = JSON.parse(item.data);
+                return {
+                  ...item,
+                  ...data,
+                  updateTime: formatTime(data.time),
+                  mockTime: item.mockTime ? formatTime(item.mockTime) : "",
+                };
+              } catch (error) {
+                return item;
+              }
+            });
+            this.list = this.sortByMock(list);
+          } else {
+            Message.error("列表请求失败");
+          }
+        })
+        .catch((err) => {
+          Message.error(err);
+        });
     },
   },
 };

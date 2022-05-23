@@ -4,9 +4,11 @@ export function search(params) {
   return fetch(`/cgi-bin/api-list${str ? "?" + str : ""}`).then((response) => {
     return response.json();
   });
-  // return fetch("/cgi-bin/api-list").then((response) => {
-  //   return response.json();
-  // });
+}
+export function check() {
+  return fetch("/cgi-bin/check-api-list").then((response) => {
+    return response.json();
+  });
 }
 
 export function updateApiData(name, data) {
@@ -34,6 +36,17 @@ export function updateApiMock(name, mock) {
 }
 export function deleteApi(name) {
   return fetch("/cgi-bin/delete-api", {
+    method: "post",
+    body: JSON.stringify({ name }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+export function deleteAllApi(name) {
+  return fetch("/cgi-bin/delete-all-api", {
     method: "post",
     body: JSON.stringify({ name }),
     headers: {
