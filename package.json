@@ -1,6 +1,6 @@
 {
   "name": "whistle.automock",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "mock  ",
   "dependencies": {
     "koa": "^2.7.0",
@@ -20,5 +20,9 @@
     "index.js",
     "package.json",
     "README.md"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:cxqdmm/automock.git"
+  }
 }
