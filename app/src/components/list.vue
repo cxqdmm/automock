@@ -1,29 +1,42 @@
 <template>
   <div class="list">
     <div class="list-head">
-      <el-input
-        class="list-head-item list-head-name"
-        clearable
-        placeholder="接口名模糊匹配"
-        v-model="search.name"
-        @keyup.enter.native="searchApi"
-      >
-        <el-button
-          slot="append"
-          icon="el-icon-search"
-          @click="searchApi"
-        ></el-button>
-      </el-input>
-      <el-button class="list-head-item" @click="deleteAll">清空列表</el-button>
-      <div class="list-head-item">
-        <span>mock前置: </span>
-        <el-switch
-          v-model="isMockFront"
-          @input="sortList()"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
+      <div class="list-head-search">
+        <div class="list-head-item">
+          <span class="list-head-item-label">规则</span>
+          <el-select
+            class="list-head-item"
+            v-model="search.pattern"
+            @change="searchApi"
+            placeholder="请选择关联的pattern"
+          >
+            <el-option
+              v-for="item in activePatterns"
+              :key="item.name"
+              :label="item.name"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
+        </div>
+        <el-input
+          class="list-head-item list-head-name"
+          clearable
+          placeholder="接口名模糊匹配"
+          v-model="search.name"
+          @keyup.enter.native="searchApi"
         >
-        </el-switch>
+          <el-button
+            slot="append"
+            icon="el-icon-search"
+            @click="searchApi"
+          ></el-button>
+        </el-input>
+      </div>
+      <div class="list-head-action">
+        <el-divider direction="vertical"></el-divider>
+        <el-button @click="deleteAll">清空列表</el-button>
+        <el-button @click="sortList()">mock前置</el-button>
       </div>
     </div>
     <div class="list-body">
@@ -79,7 +92,7 @@
       fullscreen
       :visible.sync="dialogVisible"
       width="1000px"
-      :before-close="handleClose"
+      :before-close="() => (dialogVisible = false)"
     >
       <code-editor
         class="editor"
@@ -107,6 +120,9 @@ import {
   TableColumn,
   Dialog,
   Message,
+  Select,
+  Option,
+  Divider,
 } from "element-ui";
 import {
   search,
@@ -115,8 +131,9 @@ import {
   deleteApi,
   deleteAllApi,
   check,
+  init,
 } from "../service";
-import { formatTime } from "../util/time";
+import dayjs from "dayjs";
 import CodeEditor from "./code-editor";
 
 export default {
@@ -129,25 +146,32 @@ export default {
     "el-table-column": TableColumn,
     "code-editor": CodeEditor,
     "el-dialog": Dialog,
+    "el-select": Select,
+    "el-option": Option,
+    "el-divider": Divider,
   },
   mounted() {
     this.searchApi();
     this.autoUpdateList();
+    this.getInit();
     document.addEventListener("visibilitychange", this.pageShow);
+    document.addEventListener("visibilitychange", this.getInit);
   },
   data() {
     return {
       search: {
         name: "",
+        pattern: "",
       },
-      isMockFront: true, // mock 项前置
       list: [],
       dialogVisible: false,
+      activePatterns: [{ name: "全部", value: "" }], // whistle 激活的 automock 规则列表
       view: {},
     };
   },
   beforeDestroy() {
     document.removeEventListener("visibilitychange", this.pageShow);
+    document.removeEventListener("visibilitychange", this.getInit);
   },
   computed: {
     lockAutoUpdate() {
@@ -158,6 +182,49 @@ export default {
     },
   },
   methods: {
+    // 获取主进程数据
+    getInit() {
+      init().then((data) => {
+        const { rules } = data;
+        this.getActivePatterns(rules);
+      });
+    },
+    getActivePatterns(rules) {
+      const { defaultRules, defaultRulesIsDisabled, list } = rules;
+      let activePatterns = [];
+      // 解析默认规则
+      if (defaultRulesIsDisabled) {
+        activePatterns = [];
+      } else {
+        activePatterns = defaultRules
+          .split("\n")
+          .map((i) => i.trim())
+          .filter((i) => i[0] !== "#")
+          .filter((i) => i)
+          .map((i) => i.split(" ")[0]);
+      }
+      // 解析自定义规则
+      let customActivePatterns = [];
+      const customRules = list.filter((i) => i.selected);
+      if (customRules.length) {
+        customRules.forEach((rule) => {
+          const patterns = rule.data
+            .split("\n")
+            .map((i) => i.trim())
+            .filter((i) => i[0] !== "#")
+            .filter((i) => i)
+            .map((i) => i.split(" ")[0]);
+          customActivePatterns.push(...patterns);
+        });
+      }
+      activePatterns.push(...customActivePatterns);
+
+      this.activePatterns = activePatterns.map((item) => ({
+        name: item,
+        value: item,
+      }));
+      this.activePatterns.unshift({ name: "全部", value: "" });
+    },
     pageShow() {
       if (document.visibilityState === "visible") {
         this.searchApi();
@@ -179,12 +246,9 @@ export default {
       this.list = this.sortByMock(this.list);
     },
     sortByMock(list) {
-      if (this.isMockFront) {
-        const l1 = list.filter((item) => item.mock);
-        const l2 = list.filter((item) => !item.mock);
-        return l1.concat(l2);
-      }
-      return list;
+      const l1 = list.filter((item) => item.mock);
+      const l2 = list.filter((item) => !item.mock);
+      return l1.concat(l2);
     },
     showEditWindow(row) {
       this.editRow = row;
@@ -195,9 +259,6 @@ export default {
       } catch (error) {
         Message.error(error.message);
       }
-    },
-    handleClose() {
-      this.dialogVisible = false;
     },
     updateApiData() {
       this.editRow.data = this.view;
@@ -210,7 +271,9 @@ export default {
             const parseData = JSON.parse(data.data);
             this.editRow.time = parseData.time;
             this.editRow.data = parseData.data;
-            this.editRow.updateTime = formatTime(parseData.time);
+            this.editRow.updateTime = dayjs(parseData.time).format(
+              "YYYY-MM-DD HH:mm:ss"
+            );
 
             Message.success("更新成功");
             this.dialogVisible = false;
@@ -262,24 +325,24 @@ export default {
         });
     },
     searchApi() {
-      search({ name: this.search.name })
+      search(this.search)
         .then((res) => {
           const { code, data } = res || {};
           if (code === 200) {
             const list = (data || []).map((item) => {
               try {
-                const data = JSON.parse(item.data);
                 return {
                   ...item,
-                  ...data,
-                  updateTime: formatTime(data.time),
-                  mockTime: item.mockTime ? formatTime(item.mockTime) : "",
+                  updateTime: dayjs(item.time).format("YYYY-MM-DD HH:mm:ss"),
+                  mockTime: item.mockTime
+                    ? dayjs(item.mockTime).format("YYYY-MM-DD HH:mm:ss")
+                    : "",
                 };
               } catch (error) {
                 return item;
               }
             });
-            this.list = this.sortByMock(list);
+            this.list = list;
           } else {
             Message.error("列表请求失败");
           }
@@ -300,7 +363,10 @@ export default {
   display: flex;
   flex-direction: column;
 }
-/deep/ .el-dialog__body {
+.list-head /deep/ .el-select {
+  width: 300px;
+}
+.list /deep/ .el-dialog__body {
   flex: 1;
   padding: 0;
 }
@@ -309,12 +375,22 @@ export default {
   margin-bottom: 10px;
   align-items: center;
 }
+.list-head-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
 .list-head-name {
   width: 400px;
 }
 .list-head-item {
   font-size: 14px;
-  margin-right: 20px;
+  margin-right: 10px;
+}
+.list-head-item-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 10px;
 }
 .hightlight {
   color: blue;

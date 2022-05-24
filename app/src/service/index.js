@@ -1,12 +1,24 @@
-import qs from "qs";
 export function search(params) {
-  const str = qs.stringify(params);
-  return fetch(`/cgi-bin/api-list${str ? "?" + str : ""}`).then((response) => {
+  return fetch("/cgi-bin/api-list", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
     return response.json();
   });
 }
 export function check() {
   return fetch("/cgi-bin/check-api-list").then((response) => {
+    return response.json();
+  });
+}
+export function init() {
+  return fetch("/cgi-bin/init?_=" + Date.now(), {
+    method: "get",
+    referrer: location.origin,
+  }).then((response) => {
     return response.json();
   });
 }
