@@ -1081,8 +1081,7 @@ __webpack_require__.r(__webpack_exports__);
     this.searchApi();
     this.autoUpdateList();
     this.getInit();
-    document.addEventListener("visibilitychange", this.pageShow);
-    document.addEventListener("visibilitychange", this.getInit);
+    document.addEventListener("visibilitychange", this.visibleChange);
   },
   data: function data() {
     return {
@@ -1101,8 +1100,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   beforeDestroy: function beforeDestroy() {
-    document.removeEventListener("visibilitychange", this.pageShow);
-    document.removeEventListener("visibilitychange", this.getInit);
+    document.removeEventListener("visibilitychange", this.visibleChange);
   },
   computed: {
     lockAutoUpdate: function lockAutoUpdate() {
@@ -1114,6 +1112,9 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    visibleChange: function visibleChange() {
+      this.pageShow();
+    },
     // 获取主进程数据
     getInit: function getInit() {
       var _this = this;
@@ -1140,7 +1141,7 @@ __webpack_require__.r(__webpack_exports__);
         }).filter(function (i) {
           return i[0] !== "#";
         }).filter(function (i) {
-          return i;
+          return ~i.indexOf("automock://");
         }).map(function (i) {
           return i.split(" ")[0];
         });
@@ -1159,7 +1160,7 @@ __webpack_require__.r(__webpack_exports__);
           }).filter(function (i) {
             return i[0] !== "#";
           }).filter(function (i) {
-            return i;
+            return ~i.indexOf("automock://");
           }).map(function (i) {
             return i.split(" ")[0];
           });
@@ -1183,6 +1184,7 @@ __webpack_require__.r(__webpack_exports__);
     pageShow: function pageShow() {
       if (document.visibilityState === "visible") {
         this.searchApi();
+        this.getInit();
       }
     },
     autoUpdateList: function autoUpdateList() {

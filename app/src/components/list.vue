@@ -154,8 +154,7 @@ export default {
     this.searchApi();
     this.autoUpdateList();
     this.getInit();
-    document.addEventListener("visibilitychange", this.pageShow);
-    document.addEventListener("visibilitychange", this.getInit);
+    document.addEventListener("visibilitychange", this.visibleChange);
   },
   data() {
     return {
@@ -170,8 +169,7 @@ export default {
     };
   },
   beforeDestroy() {
-    document.removeEventListener("visibilitychange", this.pageShow);
-    document.removeEventListener("visibilitychange", this.getInit);
+    document.removeEventListener("visibilitychange", this.visibleChange);
   },
   computed: {
     lockAutoUpdate() {
@@ -182,6 +180,9 @@ export default {
     },
   },
   methods: {
+    visibleChange() {
+      this.pageShow();
+    },
     // 获取主进程数据
     getInit() {
       init().then((data) => {
@@ -200,7 +201,7 @@ export default {
           .split("\n")
           .map((i) => i.trim())
           .filter((i) => i[0] !== "#")
-          .filter((i) => i)
+          .filter((i) => ~i.indexOf("automock://"))
           .map((i) => i.split(" ")[0]);
       }
       // 解析自定义规则
@@ -212,7 +213,7 @@ export default {
             .split("\n")
             .map((i) => i.trim())
             .filter((i) => i[0] !== "#")
-            .filter((i) => i)
+            .filter((i) => ~i.indexOf("automock://"))
             .map((i) => i.split(" ")[0]);
           customActivePatterns.push(...patterns);
         });
@@ -228,6 +229,7 @@ export default {
     pageShow() {
       if (document.visibilityState === "visible") {
         this.searchApi();
+        this.getInit();
       }
     },
     autoUpdateList() {
