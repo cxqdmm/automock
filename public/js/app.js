@@ -422,21 +422,42 @@ var render = function () {
           "div",
           { staticClass: "list-head-action" },
           [
-            _c("el-divider", { attrs: { direction: "vertical" } }),
-            _c("el-button", { on: { click: _vm.deleteAll } }, [
-              _vm._v("清空列表"),
-            ]),
-            _c(
-              "el-button",
-              {
-                on: {
-                  click: function ($event) {
-                    return _vm.sortList()
+            _vm.search.onlymock
+              ? _c(
+                  "el-button",
+                  {
+                    attrs: { slot: "reference", size: "mini", type: "danger" },
+                    on: { click: _vm.batchDelete },
+                    slot: "reference",
                   },
-                },
+                  [_vm._v("清空mock")]
+                )
+              : _c(
+                  "el-button",
+                  {
+                    attrs: { slot: "reference", size: "mini", type: "danger" },
+                    on: { click: _vm.batchDelete },
+                    slot: "reference",
+                  },
+                  [_vm._v("清空非mock项")]
+                ),
+            _c("el-divider", { attrs: { direction: "vertical" } }),
+            _c("el-switch", {
+              attrs: {
+                "active-text": "显示mock",
+                "inactive-text": "显示全部",
+                "active-color": "#13ce66",
+                "inactive-color": "#ff4949",
               },
-              [_vm._v("mock前置")]
-            ),
+              on: { change: _vm.searchApi },
+              model: {
+                value: _vm.search.onlymock,
+                callback: function ($$v) {
+                  _vm.$set(_vm.search, "onlymock", $$v)
+                },
+                expression: "search.onlymock",
+              },
+            }),
           ],
           1
         ),
@@ -848,6 +869,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! dayjs */ "./node_modules/dayjs/dayjs.min.js");
 /* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(dayjs__WEBPACK_IMPORTED_MODULE_22__);
 /* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../util */ "./src/util.js");
 
 
 
@@ -991,6 +1013,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -1020,7 +1066,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       search: {
         name: "",
-        pattern: ""
+        pattern: "",
+        onlymock: false
       },
       list: [],
       dialogVisible: false,
@@ -1073,7 +1120,7 @@ __webpack_require__.r(__webpack_exports__);
       if (defaultRulesIsDisabled) {
         activePatterns = [];
       } else {
-        activePatterns = defaultRules.split("\n").map(i => i.trim()).filter(i => i[0] !== "#").filter(i => ~i.indexOf("automock://")).map(i => i.split(" ")[0]);
+        activePatterns = (0,_util__WEBPACK_IMPORTED_MODULE_24__.getActivePatterns)(defaultRules);
       } // 解析自定义规则
 
 
@@ -1082,7 +1129,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (customRules.length) {
         customRules.forEach(rule => {
-          const patterns = rule.data.split("\n").map(i => i.trim()).filter(i => i[0] !== "#").filter(i => ~i.indexOf("automock://")).map(i => i.split(" ")[0]);
+          const patterns = (0,_util__WEBPACK_IMPORTED_MODULE_24__.getActivePatterns)(rule.data);
           customActivePatterns.push(...patterns);
         });
       }
@@ -1120,16 +1167,6 @@ __webpack_require__.r(__webpack_exports__);
           }
         });
       }, 2000);
-    },
-
-    sortList() {
-      this.list = this.sortByMock(this.list);
-    },
-
-    sortByMock(list) {
-      const l1 = list.filter(item => item.mock);
-      const l2 = list.filter(item => !item.mock);
-      return l1.concat(l2);
     },
 
     showEditWindow(row) {
@@ -1194,14 +1231,14 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
 
-    deleteAll() {
-      (0,_service__WEBPACK_IMPORTED_MODULE_21__.deleteAllApi)().then(data => {
+    batchDelete() {
+      (0,_service__WEBPACK_IMPORTED_MODULE_21__.batchDelete)(this.search).then(data => {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
         } else {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().success("删除成功");
 
-          this.list = [];
+          this.searchApi();
         }
       }).catch(() => {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_2___default().error("删除失败");
@@ -1268,8 +1305,8 @@ new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "batchDelete": function() { return /* binding */ batchDelete; },
 /* harmony export */   "check": function() { return /* binding */ check; },
-/* harmony export */   "deleteAllApi": function() { return /* binding */ deleteAllApi; },
 /* harmony export */   "deleteApi": function() { return /* binding */ deleteApi; },
 /* harmony export */   "init": function() { return /* binding */ init; },
 /* harmony export */   "search": function() { return /* binding */ search; },
@@ -1341,12 +1378,10 @@ function deleteApi(name) {
     return response.json();
   });
 }
-function deleteAllApi(name) {
-  return fetch("/cgi-bin/delete-all-api", {
+function batchDelete(params) {
+  return fetch("/cgi-bin/batch-delete-api", {
     method: "post",
-    body: JSON.stringify({
-      name
-    }),
+    body: JSON.stringify(params),
     headers: {
       "Content-Type": "application/json"
     }
@@ -1354,6 +1389,18 @@ function deleteAllApi(name) {
     return response.json();
   });
 }
+
+/***/ }),
+
+/***/ "./src/util.js":
+/*!*********************!*\
+  !*** ./src/util.js ***!
+  \*********************/
+/***/ (function(__unused_webpack_module, exports) {
+
+exports.getActivePatterns = (rules = "") => {
+  return rules.split("\n").map(i => i.trim()).filter(i => i[0] !== "#").filter(i => ~i.indexOf("automock://")).map(i => i.split(" ")[0]);
+};
 
 /***/ }),
 

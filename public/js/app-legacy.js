@@ -422,21 +422,42 @@ var render = function () {
           "div",
           { staticClass: "list-head-action" },
           [
-            _c("el-divider", { attrs: { direction: "vertical" } }),
-            _c("el-button", { on: { click: _vm.deleteAll } }, [
-              _vm._v("清空列表"),
-            ]),
-            _c(
-              "el-button",
-              {
-                on: {
-                  click: function ($event) {
-                    return _vm.sortList()
+            _vm.search.onlymock
+              ? _c(
+                  "el-button",
+                  {
+                    attrs: { slot: "reference", size: "mini", type: "danger" },
+                    on: { click: _vm.batchDelete },
+                    slot: "reference",
                   },
-                },
+                  [_vm._v("清空mock")]
+                )
+              : _c(
+                  "el-button",
+                  {
+                    attrs: { slot: "reference", size: "mini", type: "danger" },
+                    on: { click: _vm.batchDelete },
+                    slot: "reference",
+                  },
+                  [_vm._v("清空非mock项")]
+                ),
+            _c("el-divider", { attrs: { direction: "vertical" } }),
+            _c("el-switch", {
+              attrs: {
+                "active-text": "显示mock",
+                "inactive-text": "显示全部",
+                "active-color": "#13ce66",
+                "inactive-color": "#ff4949",
               },
-              [_vm._v("mock前置")]
-            ),
+              on: { change: _vm.searchApi },
+              model: {
+                value: _vm.search.onlymock,
+                callback: function ($$v) {
+                  _vm.$set(_vm.search, "onlymock", $$v)
+                },
+                expression: "search.onlymock",
+              },
+            }),
           ],
           1
         ),
@@ -878,32 +899,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_theme_chalk_input_css__WEBPACK_IMPORTED_MODULE_21__);
 /* harmony import */ var element_ui_lib_input__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! element-ui/lib/input */ "./node_modules/element-ui/lib/input.js");
 /* harmony import */ var element_ui_lib_input__WEBPACK_IMPORTED_MODULE_22___default = /*#__PURE__*/__webpack_require__.n(element_ui_lib_input__WEBPACK_IMPORTED_MODULE_22__);
-/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! core-js/modules/es.array.map.js */ "./node_modules/core-js/modules/es.array.map.js");
-/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_23___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_23__);
-/* harmony import */ var core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! core-js/modules/es.array.filter.js */ "./node_modules/core-js/modules/es.array.filter.js");
-/* harmony import */ var core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_24___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_24__);
-/* harmony import */ var core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! core-js/modules/es.object.to-string.js */ "./node_modules/core-js/modules/es.object.to-string.js");
-/* harmony import */ var core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_25___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_25__);
-/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
-/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_26___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_26__);
-/* harmony import */ var core_js_modules_es_string_split_js__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! core-js/modules/es.string.split.js */ "./node_modules/core-js/modules/es.string.split.js");
-/* harmony import */ var core_js_modules_es_string_split_js__WEBPACK_IMPORTED_MODULE_27___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_split_js__WEBPACK_IMPORTED_MODULE_27__);
-/* harmony import */ var core_js_modules_es_string_trim_js__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! core-js/modules/es.string.trim.js */ "./node_modules/core-js/modules/es.string.trim.js");
-/* harmony import */ var core_js_modules_es_string_trim_js__WEBPACK_IMPORTED_MODULE_28___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_trim_js__WEBPACK_IMPORTED_MODULE_28__);
-/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each.js */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
-/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_29__);
-/* harmony import */ var core_js_modules_es_array_concat_js__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! core-js/modules/es.array.concat.js */ "./node_modules/core-js/modules/es.array.concat.js");
-/* harmony import */ var core_js_modules_es_array_concat_js__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_concat_js__WEBPACK_IMPORTED_MODULE_30__);
-/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
-/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_31___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_31__);
-/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! core-js/modules/es.array.splice.js */ "./node_modules/core-js/modules/es.array.splice.js");
-/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_32___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_32__);
-/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! core-js/modules/es.string.search.js */ "./node_modules/core-js/modules/es.string.search.js");
-/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_33___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_33__);
-/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
-/* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! dayjs */ "./node_modules/dayjs/dayjs.min.js");
-/* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_35___default = /*#__PURE__*/__webpack_require__.n(dayjs__WEBPACK_IMPORTED_MODULE_35__);
-/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
+/* harmony import */ var core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! core-js/modules/es.array.filter.js */ "./node_modules/core-js/modules/es.array.filter.js");
+/* harmony import */ var core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_23___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_filter_js__WEBPACK_IMPORTED_MODULE_23__);
+/* harmony import */ var core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! core-js/modules/es.object.to-string.js */ "./node_modules/core-js/modules/es.object.to-string.js");
+/* harmony import */ var core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_24___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_to_string_js__WEBPACK_IMPORTED_MODULE_24__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each.js */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_25___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_25__);
+/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! core-js/modules/es.array.map.js */ "./node_modules/core-js/modules/es.array.map.js");
+/* harmony import */ var core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_26___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_map_js__WEBPACK_IMPORTED_MODULE_26__);
+/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
+/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_27___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_27__);
+/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! core-js/modules/es.array.splice.js */ "./node_modules/core-js/modules/es.array.splice.js");
+/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_28___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_28__);
+/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
+/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_29__);
+/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! core-js/modules/es.string.search.js */ "./node_modules/core-js/modules/es.string.search.js");
+/* harmony import */ var core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_search_js__WEBPACK_IMPORTED_MODULE_30__);
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../service */ "./src/service/index.js");
+/* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! dayjs */ "./node_modules/dayjs/dayjs.min.js");
+/* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_32___default = /*#__PURE__*/__webpack_require__.n(dayjs__WEBPACK_IMPORTED_MODULE_32__);
+/* harmony import */ var _code_editor__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./code-editor */ "./src/components/code-editor.vue");
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../util */ "./src/util.js");
 
 
 
@@ -944,122 +960,143 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -1071,7 +1108,7 @@ __webpack_require__.r(__webpack_exports__);
     "el-switch": (element_ui_lib_switch__WEBPACK_IMPORTED_MODULE_18___default()),
     "el-button": (element_ui_lib_button__WEBPACK_IMPORTED_MODULE_16___default()),
     "el-table-column": (element_ui_lib_table_column__WEBPACK_IMPORTED_MODULE_14___default()),
-    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_36__["default"],
+    "code-editor": _code_editor__WEBPACK_IMPORTED_MODULE_33__["default"],
     "el-dialog": (element_ui_lib_dialog__WEBPACK_IMPORTED_MODULE_12___default()),
     "el-select": (element_ui_lib_select__WEBPACK_IMPORTED_MODULE_10___default()),
     "el-option": (element_ui_lib_option__WEBPACK_IMPORTED_MODULE_8___default()),
@@ -1087,7 +1124,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       search: {
         name: "",
-        pattern: ""
+        pattern: "",
+        onlymock: false
       },
       list: [],
       dialogVisible: false,
@@ -1119,7 +1157,7 @@ __webpack_require__.r(__webpack_exports__);
     getInit: function getInit() {
       var _this = this;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_34__.init)().then(function (data) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_31__.init)().then(function (data) {
         var rules = data.rules;
 
         _this.getActivePatterns(rules);
@@ -1136,15 +1174,7 @@ __webpack_require__.r(__webpack_exports__);
       if (defaultRulesIsDisabled) {
         activePatterns = [];
       } else {
-        activePatterns = defaultRules.split("\n").map(function (i) {
-          return i.trim();
-        }).filter(function (i) {
-          return i[0] !== "#";
-        }).filter(function (i) {
-          return ~i.indexOf("automock://");
-        }).map(function (i) {
-          return i.split(" ")[0];
-        });
+        activePatterns = (0,_util__WEBPACK_IMPORTED_MODULE_34__.getActivePatterns)(defaultRules);
       } // 解析自定义规则
 
 
@@ -1155,15 +1185,8 @@ __webpack_require__.r(__webpack_exports__);
 
       if (customRules.length) {
         customRules.forEach(function (rule) {
-          var patterns = rule.data.split("\n").map(function (i) {
-            return i.trim();
-          }).filter(function (i) {
-            return i[0] !== "#";
-          }).filter(function (i) {
-            return ~i.indexOf("automock://");
-          }).map(function (i) {
-            return i.split(" ")[0];
-          });
+          var patterns = (0,_util__WEBPACK_IMPORTED_MODULE_34__.getActivePatterns)(rule.data);
+
           customActivePatterns.push.apply(customActivePatterns, (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_toConsumableArray_js__WEBPACK_IMPORTED_MODULE_4__["default"])(patterns));
         });
       }
@@ -1191,7 +1214,7 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       setInterval(function () {
-        (0,_service__WEBPACK_IMPORTED_MODULE_34__.check)().then(function (res) {
+        (0,_service__WEBPACK_IMPORTED_MODULE_31__.check)().then(function (res) {
           var code = res.code,
               data = res.data;
 
@@ -1202,18 +1225,6 @@ __webpack_require__.r(__webpack_exports__);
           }
         });
       }, 2000);
-    },
-    sortList: function sortList() {
-      this.list = this.sortByMock(this.list);
-    },
-    sortByMock: function sortByMock(list) {
-      var l1 = list.filter(function (item) {
-        return item.mock;
-      });
-      var l2 = list.filter(function (item) {
-        return !item.mock;
-      });
-      return l1.concat(l2);
     },
     showEditWindow: function showEditWindow(row) {
       this.editRow = row;
@@ -1230,7 +1241,7 @@ __webpack_require__.r(__webpack_exports__);
 
       this.editRow.data = this.view;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_34__.updateApiData)(this.editRow.name, this.view).then(function (res) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_31__.updateApiData)(this.editRow.name, this.view).then(function (res) {
         var code = res.code,
             data = res.data;
 
@@ -1240,7 +1251,7 @@ __webpack_require__.r(__webpack_exports__);
           var parseData = JSON.parse(data.data);
           _this3.editRow.time = parseData.time;
           _this3.editRow.data = parseData.data;
-          _this3.editRow.updateTime = dayjs__WEBPACK_IMPORTED_MODULE_35___default()(parseData.time).format("YYYY-MM-DD HH:mm:ss");
+          _this3.editRow.updateTime = dayjs__WEBPACK_IMPORTED_MODULE_32___default()(parseData.time).format("YYYY-MM-DD HH:mm:ss");
 
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("更新成功");
 
@@ -1251,7 +1262,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     updateMock: function updateMock(mock, row) {
-      (0,_service__WEBPACK_IMPORTED_MODULE_34__.updateApiMock)(row.name, mock).then(function (data) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_31__.updateApiMock)(row.name, mock).then(function (data) {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("更新失败");
         } else {
@@ -1264,7 +1275,7 @@ __webpack_require__.r(__webpack_exports__);
     deleteApi: function deleteApi(row, index) {
       var _this4 = this;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_34__.deleteApi)(row.name).then(function (data) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_31__.deleteApi)(row.name).then(function (data) {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
         } else {
@@ -1276,16 +1287,16 @@ __webpack_require__.r(__webpack_exports__);
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
       });
     },
-    deleteAll: function deleteAll() {
+    batchDelete: function batchDelete() {
       var _this5 = this;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_34__.deleteAllApi)().then(function (data) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_31__.batchDelete)(this.search).then(function (data) {
         if (data.code !== 200) {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
         } else {
           element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().success("删除成功");
 
-          _this5.list = [];
+          _this5.searchApi();
         }
       }).catch(function () {
         element_ui_lib_message__WEBPACK_IMPORTED_MODULE_3___default().error("删除失败");
@@ -1294,7 +1305,7 @@ __webpack_require__.r(__webpack_exports__);
     searchApi: function searchApi() {
       var _this6 = this;
 
-      (0,_service__WEBPACK_IMPORTED_MODULE_34__.search)(this.search).then(function (res) {
+      (0,_service__WEBPACK_IMPORTED_MODULE_31__.search)(this.search).then(function (res) {
         var _ref = res || {},
             code = _ref.code,
             data = _ref.data;
@@ -1303,8 +1314,8 @@ __webpack_require__.r(__webpack_exports__);
           var list = (data || []).map(function (item) {
             try {
               return (0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])((0,_Users_mac_Documents_cxq_plugins_whistle_automock_app_node_modules_babel_runtime_helpers_esm_objectSpread2_js__WEBPACK_IMPORTED_MODULE_0__["default"])({}, item), {}, {
-                updateTime: dayjs__WEBPACK_IMPORTED_MODULE_35___default()(item.time).format("YYYY-MM-DD HH:mm:ss"),
-                mockTime: item.mockTime ? dayjs__WEBPACK_IMPORTED_MODULE_35___default()(item.mockTime).format("YYYY-MM-DD HH:mm:ss") : ""
+                updateTime: dayjs__WEBPACK_IMPORTED_MODULE_32___default()(item.time).format("YYYY-MM-DD HH:mm:ss"),
+                mockTime: item.mockTime ? dayjs__WEBPACK_IMPORTED_MODULE_32___default()(item.mockTime).format("YYYY-MM-DD HH:mm:ss") : ""
               });
             } catch (error) {
               return item;
@@ -1365,8 +1376,8 @@ new vue__WEBPACK_IMPORTED_MODULE_5__["default"]({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "batchDelete": function() { return /* binding */ batchDelete; },
 /* harmony export */   "check": function() { return /* binding */ check; },
-/* harmony export */   "deleteAllApi": function() { return /* binding */ deleteAllApi; },
 /* harmony export */   "deleteApi": function() { return /* binding */ deleteApi; },
 /* harmony export */   "init": function() { return /* binding */ init; },
 /* harmony export */   "search": function() { return /* binding */ search; },
@@ -1444,12 +1455,10 @@ function deleteApi(name) {
     return response.json();
   });
 }
-function deleteAllApi(name) {
-  return fetch("/cgi-bin/delete-all-api", {
+function batchDelete(params) {
+  return fetch("/cgi-bin/batch-delete-api", {
     method: "post",
-    body: JSON.stringify({
-      name: name
-    }),
+    body: JSON.stringify(params),
     headers: {
       "Content-Type": "application/json"
     }
@@ -1457,6 +1466,39 @@ function deleteAllApi(name) {
     return response.json();
   });
 }
+
+/***/ }),
+
+/***/ "./src/util.js":
+/*!*********************!*\
+  !*** ./src/util.js ***!
+  \*********************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+__webpack_require__(/*! core-js/modules/es.array.map.js */ "./node_modules/core-js/modules/es.array.map.js");
+
+__webpack_require__(/*! core-js/modules/es.array.filter.js */ "./node_modules/core-js/modules/es.array.filter.js");
+
+__webpack_require__(/*! core-js/modules/es.object.to-string.js */ "./node_modules/core-js/modules/es.object.to-string.js");
+
+__webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
+
+__webpack_require__(/*! core-js/modules/es.string.split.js */ "./node_modules/core-js/modules/es.string.split.js");
+
+__webpack_require__(/*! core-js/modules/es.string.trim.js */ "./node_modules/core-js/modules/es.string.trim.js");
+
+exports.getActivePatterns = function () {
+  var rules = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+  return rules.split("\n").map(function (i) {
+    return i.trim();
+  }).filter(function (i) {
+    return i[0] !== "#";
+  }).filter(function (i) {
+    return ~i.indexOf("automock://");
+  }).map(function (i) {
+    return i.split(" ")[0];
+  });
+};
 
 /***/ }),
 

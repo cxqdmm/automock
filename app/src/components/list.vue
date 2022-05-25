@@ -34,9 +34,32 @@
         </el-input>
       </div>
       <div class="list-head-action">
+        <el-button
+          v-if="search.onlymock"
+          size="mini"
+          type="danger"
+          slot="reference"
+          @click="batchDelete"
+          >清空mock</el-button
+        >
+        <el-button
+          v-else
+          @click="batchDelete"
+          size="mini"
+          type="danger"
+          slot="reference"
+          >清空非mock项</el-button
+        >
         <el-divider direction="vertical"></el-divider>
-        <el-button @click="deleteAll">清空列表</el-button>
-        <el-button @click="sortList()">mock前置</el-button>
+        <el-switch
+          v-model="search.onlymock"
+          @change="searchApi"
+          active-text="显示mock"
+          inactive-text="显示全部"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+        >
+        </el-switch>
       </div>
     </div>
     <div class="list-body">
@@ -129,13 +152,13 @@ import {
   updateApiData,
   updateApiMock,
   deleteApi,
-  deleteAllApi,
+  batchDelete,
   check,
   init,
 } from "../service";
 import dayjs from "dayjs";
 import CodeEditor from "./code-editor";
-
+import { getActivePatterns } from "../util";
 export default {
   name: "api-list",
   components: {
@@ -161,6 +184,7 @@ export default {
       search: {
         name: "",
         pattern: "",
+        onlymock: false,
       },
       list: [],
       dialogVisible: false,
@@ -197,24 +221,14 @@ export default {
       if (defaultRulesIsDisabled) {
         activePatterns = [];
       } else {
-        activePatterns = defaultRules
-          .split("\n")
-          .map((i) => i.trim())
-          .filter((i) => i[0] !== "#")
-          .filter((i) => ~i.indexOf("automock://"))
-          .map((i) => i.split(" ")[0]);
+        activePatterns = getActivePatterns(defaultRules);
       }
       // 解析自定义规则
       let customActivePatterns = [];
       const customRules = list.filter((i) => i.selected);
       if (customRules.length) {
         customRules.forEach((rule) => {
-          const patterns = rule.data
-            .split("\n")
-            .map((i) => i.trim())
-            .filter((i) => i[0] !== "#")
-            .filter((i) => ~i.indexOf("automock://"))
-            .map((i) => i.split(" ")[0]);
+          const patterns = getActivePatterns(rule.data);
           customActivePatterns.push(...patterns);
         });
       }
@@ -244,14 +258,6 @@ export default {
         });
       }, 2000);
     },
-    sortList() {
-      this.list = this.sortByMock(this.list);
-    },
-    sortByMock(list) {
-      const l1 = list.filter((item) => item.mock);
-      const l2 = list.filter((item) => !item.mock);
-      return l1.concat(l2);
-    },
     showEditWindow(row) {
       this.editRow = row;
       try {
@@ -276,7 +282,6 @@ export default {
             this.editRow.updateTime = dayjs(parseData.time).format(
               "YYYY-MM-DD HH:mm:ss"
             );
-
             Message.success("更新成功");
             this.dialogVisible = false;
           }
@@ -312,14 +317,14 @@ export default {
           Message.error("删除失败");
         });
     },
-    deleteAll() {
-      deleteAllApi()
+    batchDelete() {
+      batchDelete(this.search)
         .then((data) => {
           if (data.code !== 200) {
             Message.error("删除失败");
           } else {
             Message.success("删除成功");
-            this.list = [];
+            this.searchApi();
           }
         })
         .catch(() => {

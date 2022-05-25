@@ -57,10 +57,10 @@ export function deleteApi(name) {
     return response.json();
   });
 }
-export function deleteAllApi(name) {
-  return fetch("/cgi-bin/delete-all-api", {
+export function batchDelete(params) {
+  return fetch("/cgi-bin/batch-delete-api", {
     method: "post",
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(params),
     headers: {
       "Content-Type": "application/json",
     },
