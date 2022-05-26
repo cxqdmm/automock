@@ -35,6 +35,18 @@ export function updateApiData(name, data) {
   });
 }
 
+export function createApiData(name, data) {
+  return fetch("/cgi-bin/create-api-data", {
+    method: "post",
+    body: JSON.stringify({ name, data }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+
 export function updateApiMock(name, mock) {
   return fetch("/cgi-bin/update-api-mock", {
     method: "post",

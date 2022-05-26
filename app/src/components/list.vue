@@ -34,20 +34,18 @@
         </el-input>
       </div>
       <div class="list-head-action">
+        <el-button @click="handleCreate" size="mini" type="primary"
+          >新建</el-button
+        >
+        <el-divider direction="vertical"></el-divider>
         <el-button
           v-if="search.onlymock"
           size="mini"
           type="danger"
-          slot="reference"
           @click="batchDelete"
           >清空mock</el-button
         >
-        <el-button
-          v-else
-          @click="batchDelete"
-          size="mini"
-          type="danger"
-          slot="reference"
+        <el-button v-else @click="batchDelete" size="mini" type="danger"
           >清空非mock项</el-button
         >
         <el-divider direction="vertical"></el-divider>
@@ -78,6 +76,8 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="pattern" label="规则" width="400">
+        </el-table-column>
         <el-table-column prop="mockTime" label="命中mock时间" width="200">
         </el-table-column>
         <el-table-column prop="updateTime" label="更新时间" width="200">
@@ -95,7 +95,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <el-button size="mini" @click="showEditWindow(scope.row)">
+            <el-button size="mini" @click="handleEdit(scope.row)">
               编辑
             </el-button>
             <el-button
@@ -110,68 +110,35 @@
       </el-table>
     </div>
     <div class="list-footer"></div>
-    <el-dialog
-      title="编辑"
-      fullscreen
-      :visible.sync="dialogVisible"
-      width="1000px"
-      :before-close="() => (dialogVisible = false)"
-    >
-      <code-editor
-        class="editor"
-        ref="edit"
-        v-model="view"
-        :show-btns="false"
-        :expanded-on-start="true"
-        mode="code"
-        lang="zh"
-      />
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="updateApiData">确 定</el-button>
-      </span>
-    </el-dialog>
+    <api-window
+      :is-edit="editData.isEdit"
+      :visible="editData.visible"
+      :data="editData"
+      @close="hideApiWindow"
+      @confirm="handleConfirm"
+    />
   </div>
 </template>
 
 <script>
-import {
-  Input,
-  Table,
-  Switch,
-  Button,
-  TableColumn,
-  Dialog,
-  Message,
-  Select,
-  Option,
-  Divider,
-} from "element-ui";
+import { Message } from "element-ui";
 import {
   search,
   updateApiData,
   updateApiMock,
+  createApiData,
   deleteApi,
   batchDelete,
   check,
   init,
 } from "../service";
 import dayjs from "dayjs";
-import CodeEditor from "./code-editor";
 import { getActivePatterns } from "../util";
+import apiWindow from "./edit-window.vue";
 export default {
   name: "api-list",
   components: {
-    "el-input": Input,
-    "el-table": Table,
-    "el-switch": Switch,
-    "el-button": Button,
-    "el-table-column": TableColumn,
-    "code-editor": CodeEditor,
-    "el-dialog": Dialog,
-    "el-select": Select,
-    "el-option": Option,
-    "el-divider": Divider,
+    "api-window": apiWindow,
   },
   mounted() {
     this.searchApi();
@@ -187,9 +154,15 @@ export default {
         onlymock: false,
       },
       list: [],
-      dialogVisible: false,
       activePatterns: [{ name: "全部", value: "" }], // whistle 激活的 automock 规则列表
       view: {},
+      editRow: null,
+      editData: {
+        visible: false,
+        isEdit: false,
+        content: {},
+        name: "",
+      },
     };
   },
   beforeDestroy() {
@@ -197,7 +170,7 @@ export default {
   },
   computed: {
     lockAutoUpdate() {
-      if (this.dialogVisible) {
+      if (this.editData.visible) {
         return true;
       }
       return false;
@@ -258,19 +231,61 @@ export default {
         });
       }, 2000);
     },
-    showEditWindow(row) {
-      this.editRow = row;
+    handleEdit(row) {
       try {
-        this.view =
+        this.editData.content =
           typeof row.data === "string" ? JSON.parse(row.data) : row.data;
-        this.dialogVisible = true;
+        this.editRow = row;
+        this.editData.isEdit = true;
+        this.editData.visible = true;
+        this.editData.name = row.name;
       } catch (error) {
         Message.error(error.message);
       }
     },
-    updateApiData() {
-      this.editRow.data = this.view;
-      updateApiData(this.editRow.name, this.view)
+    hideApiWindow() {
+      this.editData.visible = false;
+    },
+    handleConfirm({ content, name }) {
+      this.editData.content = content;
+      this.editData.name = name;
+
+      if (this.editData.isEdit) {
+        this.updateApiData({
+          name: this.editData.name,
+          content: content,
+        });
+      } else {
+        this.createApi({
+          name: this.editData.name,
+          content: content,
+        });
+      }
+    },
+    handleCreate() {
+      this.editData.isEdit = false;
+      this.editData.content = {};
+      this.editData.name = "";
+      this.editData.visible = true;
+    },
+    createApi({ name, content }) {
+      createApiData(name, content)
+        .then((res) => {
+          const { code, msg } = res;
+          if (code !== 200) {
+            Message.error(msg || "新建失败");
+          } else {
+            Message.success("新建成功");
+            this.hideApiWindow();
+            this.searchApi();
+          }
+        })
+        .catch((error) => {
+          Message.error(error.message || "更新失败");
+        });
+    },
+    updateApiData({ name, content }) {
+      updateApiData(name, content)
         .then((res) => {
           const { code, data } = res;
           if (code !== 200) {
@@ -283,7 +298,7 @@ export default {
               "YYYY-MM-DD HH:mm:ss"
             );
             Message.success("更新成功");
-            this.dialogVisible = false;
+            this.hideApiWindow();
           }
         })
         .catch(() => {
@@ -363,19 +378,8 @@ export default {
 </script>
 
 <style scoped>
-.editor {
-  height: 100%;
-}
-.list /deep/ .el-dialog {
-  display: flex;
-  flex-direction: column;
-}
 .list-head /deep/ .el-select {
   width: 300px;
-}
-.list /deep/ .el-dialog__body {
-  flex: 1;
-  padding: 0;
 }
 .list-head {
   display: flex;

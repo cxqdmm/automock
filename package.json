@@ -1,6 +1,6 @@
 {
   "name": "whistle.automock",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "mock",
   "dependencies": {
     "koa": "^2.7.0",
