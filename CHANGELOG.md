@@ -17,3 +17,14 @@
 # 1.0.9
 
 支持新建接口
+
+# 1.0.10
+
+新增规则
+1、 automock://href
+支持 mock 完整 url
+当请求接口 url 与 mock 文件名相同时，命中 mock
+
+2、 automock://pathname
+支持 mock pathname
+当请求接口的 pathname 与文件名相同时，命中 mock
