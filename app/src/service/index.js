@@ -35,10 +35,10 @@ export function updateApiData(name, data) {
   });
 }
 
-export function createApiData(name, data) {
+export function createApiData(body) {
   return fetch("/cgi-bin/create-api-data", {
     method: "post",
-    body: JSON.stringify({ name, data }),
+    body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
     },

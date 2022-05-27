@@ -3,6 +3,12 @@ module.exports = defineConfig({
   transpileDependencies: true,
   outputDir: "../public",
   configureWebpack: (config) => {
-    delete config.devtool;
+    if (process.env.BUILD_MODE === "dev") {
+      return {
+        devtool: "source-map",
+      };
+    } else {
+      delete config.devtool;
+    }
   },
 });

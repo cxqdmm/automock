@@ -28,3 +28,7 @@
 2、 automock://pathname
 支持 mock pathname
 当请求接口的 pathname 与文件名相同时，命中 mock
+
+# 1.0.11
+
+优化表格展示

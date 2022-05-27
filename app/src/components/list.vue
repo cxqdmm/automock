@@ -6,12 +6,12 @@
           <span class="list-head-item-label">规则</span>
           <el-select
             class="list-head-item"
-            v-model="search.pattern"
+            v-model="search.rule"
             @change="searchApi"
             placeholder="请选择关联的pattern"
           >
             <el-option
-              v-for="item in activePatterns"
+              v-for="item in activeRules"
               :key="item.name"
               :label="item.name"
               :value="item.value"
@@ -53,7 +53,7 @@
           v-model="search.onlymock"
           @change="searchApi"
           active-text="显示mock"
-          inactive-text="显示全部"
+          inactive-text=""
           active-color="#13ce66"
           inactive-color="#ff4949"
         >
@@ -69,20 +69,92 @@
         size="mini"
         row-key="name"
       >
-        <el-table-column prop="name" label="接口名">
+        <el-table-column prop="name" label="文件名">
           <template slot-scope="scope">
-            <div :class="{ hightlight: scope.row.mock }">
-              {{ scope.row.name }}
+            <div class="name">
+              <el-tag
+                class="name-tag font-bold"
+                effect="dark"
+                size="mini"
+                type="success"
+                >{{ scope.row.ruleValue }}</el-tag
+              >
+              <el-tooltip
+                class="item"
+                effect="light"
+                :content="scope.row.name"
+                placement="right-start"
+                popper-class="name-value-pop"
+              >
+                <div
+                  class="name-value font-bold"
+                  :class="{ blue: scope.row.mock }"
+                >
+                  {{ scope.row.name }}
+                </div>
+              </el-tooltip>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="pattern" label="规则" width="400">
+        <el-table-column prop="rule" width="600">
+          <template slot="header">
+            接口信息
+            <el-tooltip
+              effect="light"
+              content="最近一次匹配的接口信息"
+              placement="top"
+            >
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <div
+              v-if="scope.row.rule"
+              class="no-wrap line-height-1 blue font-bold"
+            >
+              <span class="table-label">规则：</span>{{ scope.row.rule }}
+            </div>
+            <div v-if="scope.row.url" class="no-wrap line-height-1 font-bold">
+              <span class="table-label">链接：</span>
+              {{ scope.row.url }}
+            </div>
+          </template>
         </el-table-column>
-        <el-table-column prop="mockTime" label="命中mock时间" width="200">
+        <el-table-column prop="mockTime" width="140">
+          <template slot="header">
+            mock时间
+            <el-tooltip
+              effect="light"
+              content="最近一次mock接口的时间"
+              placement="top"
+            >
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
         </el-table-column>
-        <el-table-column prop="updateTime" label="更新时间" width="200">
+        <el-table-column prop="updateTime" width="140">
+          <template slot="header">
+            更新时间
+            <el-tooltip
+              effect="light"
+              content="文件最近一次更新的时间"
+              placement="top"
+            >
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
         </el-table-column>
-        <el-table-column label="mock" width="100">
+        <el-table-column width="80">
+          <template slot="header">
+            mock
+            <el-tooltip
+              effect="light"
+              content="开启mock后，文件内容只能通过手动编辑修改"
+              placement="top"
+            >
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.mock"
@@ -93,7 +165,7 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" width="160">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.row)">
               编辑
@@ -133,7 +205,7 @@ import {
   init,
 } from "../service";
 import dayjs from "dayjs";
-import { getActivePatterns } from "../util";
+import { getActiveRules } from "../util";
 import apiWindow from "./edit-window.vue";
 export default {
   name: "api-list",
@@ -150,11 +222,11 @@ export default {
     return {
       search: {
         name: "",
-        pattern: "",
+        rule: "",
         onlymock: false,
       },
       list: [],
-      activePatterns: [{ name: "全部", value: "" }], // whistle 激活的 automock 规则列表
+      activeRules: [{ name: "全部", value: "" }], // whistle 激活的 automock 规则列表
       view: {},
       editRow: null,
       editData: {
@@ -162,6 +234,7 @@ export default {
         isEdit: false,
         content: {},
         name: "",
+        ruleValue: "",
       },
     };
   },
@@ -184,34 +257,34 @@ export default {
     getInit() {
       init().then((data) => {
         const { rules } = data;
-        this.getActivePatterns(rules);
+        this.getRules(rules);
       });
     },
-    getActivePatterns(rules) {
+    getRules(rules) {
       const { defaultRules, defaultRulesIsDisabled, list } = rules;
-      let activePatterns = [];
+      let activeRules = [];
       // 解析默认规则
       if (defaultRulesIsDisabled) {
-        activePatterns = [];
+        activeRules = [];
       } else {
-        activePatterns = getActivePatterns(defaultRules);
+        activeRules = getActiveRules(defaultRules);
       }
       // 解析自定义规则
       let customActivePatterns = [];
       const customRules = list.filter((i) => i.selected);
       if (customRules.length) {
         customRules.forEach((rule) => {
-          const patterns = getActivePatterns(rule.data);
+          const patterns = getActiveRules(rule.data);
           customActivePatterns.push(...patterns);
         });
       }
-      activePatterns.push(...customActivePatterns);
+      activeRules.push(...customActivePatterns);
 
-      this.activePatterns = activePatterns.map((item) => ({
+      this.activeRules = activeRules.map((item) => ({
         name: item,
         value: item,
       }));
-      this.activePatterns.unshift({ name: "全部", value: "" });
+      this.activeRules.unshift({ name: "全部", value: "" });
     },
     pageShow() {
       if (document.visibilityState === "visible") {
@@ -236,9 +309,10 @@ export default {
         this.editData.content =
           typeof row.data === "string" ? JSON.parse(row.data) : row.data;
         this.editRow = row;
+        this.editData.name = row.name;
+        this.editData.ruleValue = row.ruleValue;
         this.editData.isEdit = true;
         this.editData.visible = true;
-        this.editData.name = row.name;
       } catch (error) {
         Message.error(error.message);
       }
@@ -246,19 +320,21 @@ export default {
     hideApiWindow() {
       this.editData.visible = false;
     },
-    handleConfirm({ content, name }) {
+    handleConfirm({ content, name, ruleValue }) {
       this.editData.content = content;
       this.editData.name = name;
+      this.editData.ruleValue = ruleValue;
 
       if (this.editData.isEdit) {
         this.updateApiData({
-          name: this.editData.name,
-          content: content,
+          name,
+          content,
         });
       } else {
         this.createApi({
-          name: this.editData.name,
-          content: content,
+          name,
+          content,
+          ruleValue,
         });
       }
     },
@@ -268,8 +344,8 @@ export default {
       this.editData.name = "";
       this.editData.visible = true;
     },
-    createApi({ name, content }) {
-      createApiData(name, content)
+    createApi(body) {
+      createApiData(body)
         .then((res) => {
           const { code, msg } = res;
           if (code !== 200) {
@@ -378,6 +454,18 @@ export default {
 </script>
 
 <style scoped>
+.name {
+  display: flex;
+  align-items: center;
+}
+.name-tag {
+  margin-right: 4px;
+}
+.name-value {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 .list-head /deep/ .el-select {
   width: 300px;
 }
@@ -403,7 +491,27 @@ export default {
   font-weight: 500;
   margin-right: 10px;
 }
-.hightlight {
+.highlight {
   color: blue;
+}
+.line-height-1 {
+  line-height: 1.2;
+}
+.no-wrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.table-label {
+  display: inline-block;
+  width: 30px;
+  text-align: right;
+  margin-right: 4px;
+}
+.blue {
+  color: #3f9eff;
+}
+.font-bold {
+  font-weight: 600;
 }
 </style>

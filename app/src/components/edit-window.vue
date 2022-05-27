@@ -8,13 +8,25 @@
     :before-close="close"
   >
     <div class="item">
-      <span class="item-label"> url: </span>
+      <span class="item-label"> 规则: </span>
+      <el-radio-group :disabled="isEdit" v-model="ruleValue">
+        <el-radio label="pathname">pathname</el-radio>
+        <el-radio label="href">href</el-radio>
+      </el-radio-group>
+    </div>
+    <div class="item" v-if="isEdit">
+      <span class="item-label"> 名称: </span>
+      <div class="item-value">{{ realName }}</div>
+    </div>
+    <div class="item" v-else>
+      <span class="item-label"> 名称: </span>
       <el-input
-        placeholder="请输入url（ 注意：url = location.origin + location.pathname）"
+        placeholder="请输入url"
         :disabled="isEdit"
-        clearable
         v-model="name"
-      />
+        class="input-with-select"
+      >
+      </el-input>
     </div>
     <div class="editor">
       <span class="item-label"> 内容: </span>
@@ -36,6 +48,7 @@
 
 <script>
 import CodeEditor from "./code-editor";
+import { Message } from "element-ui";
 export default {
   props: {
     isEdit: {
@@ -58,23 +71,57 @@ export default {
     return {
       content: {},
       name: "",
+      ruleValue: "pathname",
     };
   },
   watch: {
     visible(val) {
       if (val) {
         this.content = this.data.content;
+        this.ruleValue = this.data.ruleValue || "pathname";
         this.name = this.data.name;
       }
     },
   },
-
   methods: {
     close() {
       this.$emit("close");
     },
+    validate() {
+      try {
+        const url = new URL(this.name);
+        if (!url.protocol) {
+          return [false, "协议不能为空"];
+        } else if (!url.host) {
+          return [false, "host不能为空"];
+        } else if (!url.pathname) {
+          return [false, "pathname不能为空"];
+        }
+
+        return [true];
+      } catch (error) {
+        return [false, "new URL() 无法解析出名称，请检查"];
+      }
+    },
+    getName() {
+      const url = new URL(this.name);
+      if (this.ruleValue === "pathname") {
+        return url.origin + url.pathname;
+      } else if (this.ruleValue === "href") {
+        return url.href;
+      }
+    },
     confirm() {
-      this.$emit("confirm", { content: this.content, name: this.name });
+      const [pass, msg] = this.validate();
+      if (!pass) {
+        return Message.error(msg);
+      }
+
+      this.$emit("confirm", {
+        content: this.content,
+        name: this.getName(),
+        ruleValue: this.ruleValue,
+      });
     },
   },
 };
@@ -93,6 +140,11 @@ export default {
   margin-right: 10px;
   text-align: right;
 }
+.item-value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .dialog /deep/ .el-dialog {
   display: flex;
   flex-direction: column;
@@ -109,5 +161,11 @@ export default {
 }
 .json-editor {
   flex: 1;
+}
+.input-with-select {
+  width: 600px;
+}
+.name-protocol {
+  width: 100px;
 }
 </style>

@@ -10,6 +10,10 @@ import {
   Select,
   Option,
   Divider,
+  Tag,
+  Tooltip,
+  RadioGroup,
+  Radio,
 } from "element-ui";
 import App from "./App.vue";
 Vue.component(Input.name, Input);
@@ -22,6 +26,10 @@ Vue.component(Message.name, Message);
 Vue.component(Select.name, Select);
 Vue.component(Option.name, Option);
 Vue.component(Divider.name, Divider);
+Vue.component(Tag.name, Tag);
+Vue.component(Tooltip.name, Tooltip);
+Vue.component(RadioGroup.name, RadioGroup);
+Vue.component(Radio.name, Radio);
 Vue.config.productionTip = false;
 
 new Vue({
