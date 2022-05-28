@@ -8,7 +8,7 @@
     :before-close="close"
   >
     <div class="item">
-      <span class="item-label"> 规则: </span>
+      <span class="item-label"> 模式: </span>
       <el-radio-group :disabled="isEdit" v-model="ruleValue">
         <el-radio label="pathname">pathname</el-radio>
         <el-radio label="href">href</el-radio>

@@ -1,6 +1,6 @@
 {
   "name": "whistle.automock",
-  "version": "1.0.11",
+  "version": "1.0.14",
   "description": "提升本地mock接口数据的体验",
   "dependencies": {
     "koa": "^2.7.0",
@@ -24,5 +24,10 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:cxqdmm/automock.git"
-  }
+  },
+  "keywords": [
+    "proxy",
+    "mock",
+    "whistle"
+  ]
 }

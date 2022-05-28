@@ -72,31 +72,35 @@
         <el-table-column prop="name" label="文件名">
           <template slot-scope="scope">
             <div class="name">
-              <el-tag
-                class="name-tag font-bold"
-                effect="dark"
-                size="mini"
-                type="success"
-                >{{ scope.row.ruleValue }}</el-tag
+              <div
+                class="name-value font-bold"
+                :class="{ blue: scope.row.mock, expand: scope.row.expandName }"
               >
-              <el-tooltip
-                class="item"
-                effect="light"
-                :content="scope.row.name"
-                placement="right-start"
-                popper-class="name-value-pop"
+                {{ scope.row.name }}
+              </div>
+              <div class="name-expand-shadow"></div>
+              <div
+                class="name-expand-icon"
+                @click="scope.row.expandName = !scope.row.expandName"
               >
-                <div
-                  class="name-value font-bold"
-                  :class="{ blue: scope.row.mock }"
-                >
-                  {{ scope.row.name }}
-                </div>
-              </el-tooltip>
+                <i v-if="scope.row.expandName" class="el-icon-arrow-up"></i>
+                <i v-else class="el-icon-arrow-down"></i>
+              </div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="rule" width="600">
+        <el-table-column width="100" label="mock模式">
+          <template slot-scope="scope">
+            <el-tag
+              class="name-tag font-bold"
+              effect="dark"
+              size="mini"
+              type="success"
+              >{{ scope.row.ruleValue }}</el-tag
+            >
+          </template>
+        </el-table-column>
+        <el-table-column prop="rule" width="500">
           <template slot="header">
             接口信息
             <el-tooltip
@@ -110,16 +114,31 @@
           <template slot-scope="scope">
             <div
               v-if="scope.row.rule"
-              class="no-wrap line-height-1 blue font-bold"
+              class="no-wrap line-height-1 blue font-bold flex align-center"
             >
-              <span class="table-label">规则：</span>{{ scope.row.rule }}
+              <span class="table-label">rule：</span>
+              <div class="flex-1">{{ scope.row.rule }}</div>
             </div>
-            <div v-if="scope.row.url" class="no-wrap line-height-1 font-bold">
-              <span class="table-label">链接：</span>
-              {{ scope.row.url }}
+            <div
+              v-if="scope.row.url"
+              class="no-wrap line-height-1 font-bold flex align-baseline"
+            >
+              <span class="table-label">url：</span>
+              <span class="flex-1" :class="{ expand: scope.row.expandUrl }">{{
+                scope.row.url
+              }}</span>
+              <div
+                class="expand-icon"
+                @click="scope.row.expandUrl = !scope.row.expandUrl"
+                v-if="scope.row.url.length > 86"
+              >
+                <i v-if="scope.row.expandUrl" class="el-icon-arrow-up"></i>
+                <i v-else class="el-icon-arrow-down"></i>
+              </div>
             </div>
           </template>
         </el-table-column>
+
         <el-table-column prop="mockTime" width="140">
           <template slot="header">
             mock时间
@@ -431,6 +450,8 @@ export default {
               try {
                 return {
                   ...item,
+                  expandUrl: false,
+                  expandName: false,
                   updateTime: dayjs(item.time).format("YYYY-MM-DD HH:mm:ss"),
                   mockTime: item.mockTime
                     ? dayjs(item.mockTime).format("YYYY-MM-DD HH:mm:ss")
@@ -455,16 +476,47 @@ export default {
 
 <style scoped>
 .name {
-  display: flex;
-  align-items: center;
+  position: relative;
+  white-space: nowrap;
+  line-height: 0;
 }
 .name-tag {
   margin-right: 4px;
 }
+/deep/ .el-table__row:hover .name-expand-shadow {
+  background: #f4f7fa;
+}
+/deep/ .el-table__row:hover .name-expand-icon {
+  background: #f4f7fa;
+}
 .name-value {
+  max-width: 100%;
+  padding-right: 20px;
+  display: inline-block;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  position: relative;
+  line-height: 23px;
+  vertical-align: top;
+}
+.name-expand-shadow {
+  width: 500px;
+  height: 23px;
+  background: white;
+  display: inline-block;
+  z-index: 30;
+  position: relative;
+  transition: background-color 0.25s ease;
+}
+.name-expand-icon {
+  width: 12px;
+  position: absolute;
+  top: 8px;
+  right: 0;
+  background: white;
+  z-index: 1;
+  transition: background-color 0.25s ease;
 }
 .list-head /deep/ .el-select {
   width: 300px;
@@ -480,7 +532,7 @@ export default {
   align-items: center;
 }
 .list-head-name {
-  width: 400px;
+  width: 300px;
 }
 .list-head-item {
   font-size: 14px;
@@ -503,15 +555,33 @@ export default {
   text-overflow: ellipsis;
 }
 .table-label {
-  display: inline-block;
-  width: 30px;
+  flex: 0 0 34px;
   text-align: right;
-  margin-right: 4px;
 }
 .blue {
   color: #3f9eff;
 }
 .font-bold {
   font-weight: 600;
+}
+.flex {
+  display: flex;
+}
+.align-center {
+  align-items: center;
+}
+.align-baseline {
+  align-items: baseline;
+}
+.flex-1 {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.expand {
+  white-space: pre-wrap;
+}
+.expand-icon {
+  width: 20px;
 }
 </style>
