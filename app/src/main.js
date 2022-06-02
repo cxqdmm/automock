@@ -14,6 +14,8 @@ import {
   Tooltip,
   RadioGroup,
   Radio,
+  Tabs,
+  TabPane,
 } from "element-ui";
 import App from "./App.vue";
 Vue.component(Input.name, Input);
@@ -30,6 +32,8 @@ Vue.component(Tag.name, Tag);
 Vue.component(Tooltip.name, Tooltip);
 Vue.component(RadioGroup.name, RadioGroup);
 Vue.component(Radio.name, Radio);
+Vue.component(Tabs.name, Tabs);
+Vue.component(TabPane.name, TabPane);
 Vue.config.productionTip = false;
 
 new Vue({

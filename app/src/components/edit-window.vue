@@ -16,7 +16,7 @@
     </div>
     <div class="item" v-if="isEdit">
       <span class="item-label"> 名称: </span>
-      <div class="item-value">{{ realName }}</div>
+      <div class="item-value">{{ name }}</div>
     </div>
     <div class="item" v-else>
       <span class="item-label"> 名称: </span>

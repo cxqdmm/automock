@@ -60,145 +60,176 @@
         </el-switch>
       </div>
     </div>
-    <div class="list-body">
-      <el-table
-        :data="list"
-        height="800"
-        border
-        style="width: 100%"
-        size="mini"
-        row-key="name"
-      >
-        <el-table-column prop="name" label="文件名">
-          <template slot-scope="scope">
-            <div class="name">
-              <div
-                class="name-value font-bold"
-                :class="{ blue: scope.row.mock, expand: scope.row.expandName }"
-              >
-                {{ scope.row.name }}
+    <div class="container">
+      <div class="list-body" :class="{ 'show-detail': !!currentRow }">
+        <el-table
+          :data="list"
+          highlight-current-row
+          height="800"
+          border
+          style="width: 100%"
+          size="mini"
+          row-key="name"
+          @current-change="handleSelectRow"
+        >
+          <el-table-column prop="name" label="文件名" min-width="300">
+            <template slot-scope="scope">
+              <div class="name">
+                <div
+                  class="name-value font-bold"
+                  :class="{
+                    blue: scope.row.mock,
+                  }"
+                >
+                  {{ scope.row.name }}
+                </div>
               </div>
-              <div class="name-expand-shadow"></div>
-              <div
-                class="name-expand-icon"
-                @click="scope.row.expandName = !scope.row.expandName"
+            </template>
+          </el-table-column>
+          <el-table-column width="100" label="mock模式">
+            <template slot-scope="scope">
+              <el-tag
+                class="name-tag font-bold"
+                effect="dark"
+                size="mini"
+                type="success"
+                >{{ scope.row.ruleValue }}</el-tag
               >
-                <i v-if="scope.row.expandName" class="el-icon-arrow-up"></i>
-                <i v-else class="el-icon-arrow-down"></i>
-              </div>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column width="100" label="mock模式">
-          <template slot-scope="scope">
-            <el-tag
-              class="name-tag font-bold"
-              effect="dark"
-              size="mini"
-              type="success"
-              >{{ scope.row.ruleValue }}</el-tag
-            >
-          </template>
-        </el-table-column>
-        <el-table-column prop="rule" width="500">
-          <template slot="header">
-            接口信息
-            <el-tooltip
-              effect="light"
-              content="最近一次匹配的接口信息"
-              placement="top"
-            >
-              <i class="el-icon-info"></i>
-            </el-tooltip>
-          </template>
-          <template slot-scope="scope">
-            <div
-              v-if="scope.row.rule"
-              class="no-wrap line-height-1 blue font-bold flex align-center"
-            >
-              <span class="table-label">rule：</span>
-              <div class="flex-1">{{ scope.row.rule }}</div>
-            </div>
-            <div
-              v-if="scope.row.url"
-              class="no-wrap line-height-1 font-bold flex align-baseline"
-            >
-              <span class="table-label">url：</span>
-              <span class="flex-1" :class="{ expand: scope.row.expandUrl }">{{
-                scope.row.url
-              }}</span>
-              <div
-                class="expand-icon"
-                @click="scope.row.expandUrl = !scope.row.expandUrl"
-                v-if="scope.row.url.length > 86"
+            </template>
+          </el-table-column>
+          <el-table-column prop="rule" min-width="300">
+            <template slot="header">
+              接口信息
+              <el-tooltip
+                effect="light"
+                content="最近一次匹配的接口信息"
+                placement="top"
               >
-                <i v-if="scope.row.expandUrl" class="el-icon-arrow-up"></i>
-                <i v-else class="el-icon-arrow-down"></i>
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </template>
+            <template slot-scope="scope">
+              <div
+                v-if="scope.row.rule"
+                class="no-wrap line-height-1 blue font-bold flex align-center"
+              >
+                <span class="table-label">rule：</span>
+                <div class="flex-1">{{ scope.row.rule }}</div>
               </div>
-            </div>
-          </template>
-        </el-table-column>
+              <div
+                v-if="scope.row.url"
+                class="no-wrap line-height-1 font-bold flex align-baseline"
+              >
+                <span class="table-label">url：</span>
+                <span class="flex-1">{{ scope.row.url }}</span>
+              </div>
+            </template>
+          </el-table-column>
 
-        <el-table-column prop="mockTime" width="140">
-          <template slot="header">
-            mock时间
-            <el-tooltip
-              effect="light"
-              content="最近一次mock接口的时间"
-              placement="top"
+          <el-table-column prop="mockTime" width="140">
+            <template slot="header">
+              mock时间
+              <el-tooltip
+                effect="light"
+                content="最近一次mock接口的时间"
+                placement="top"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="updateTime" width="140">
+            <template slot="header">
+              更新时间
+              <el-tooltip
+                effect="light"
+                content="文件最近一次更新的时间"
+                placement="top"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column width="80">
+            <template slot="header">
+              mock
+              <el-tooltip
+                effect="light"
+                content="开启mock后，文件内容只能通过手动编辑修改"
+                placement="top"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </template>
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.mock"
+                @input="updateMock($event, scope.row)"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+              >
+              </el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="160">
+            <template slot-scope="scope">
+              <el-button size="mini" @click.stop="handleEdit(scope.row)">
+                编辑
+              </el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                @click.stop="deleteApi(scope.row, scope.$index)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div v-if="currentRow" class="detail">
+        <i class="el-icon-close" @click="closeDetail"></i>
+        <el-tabs type="border-card">
+          <el-tab-pane label="详细信息">
+            <div class="detail-item">
+              <div class="label">文件名</div>
+              <div class="value">{{ currentRow.name }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">url</div>
+              <div class="value">{{ currentRow.url }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">rule</div>
+              <div class="value">{{ currentRow.rule }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">updateTime</div>
+              <div class="value">{{ currentRow.updateTime }}</div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="query">
+            <div
+              class="detail-item"
+              v-for="key in Object.keys(currentRow.query || {})"
+              :key="key"
             >
-              <i class="el-icon-info"></i>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="updateTime" width="140">
-          <template slot="header">
-            更新时间
-            <el-tooltip
-              effect="light"
-              content="文件最近一次更新的时间"
-              placement="top"
-            >
-              <i class="el-icon-info"></i>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column width="80">
-          <template slot="header">
-            mock
-            <el-tooltip
-              effect="light"
-              content="开启mock后，文件内容只能通过手动编辑修改"
-              placement="top"
-            >
-              <i class="el-icon-info"></i>
-            </el-tooltip>
-          </template>
-          <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.mock"
-              @input="updateMock($event, scope.row)"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-            >
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="160">
-          <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.row)">
-              编辑
-            </el-button>
-            <el-button
-              type="danger"
-              size="mini"
-              @click="deleteApi(scope.row, scope.$index)"
-            >
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+              <div class="label">{{ key }}</div>
+              <div class="value">{{ currentRow.query[key] }}</div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="payload">
+            <code-editor
+              ref="edit"
+              v-model="currentRow.payload"
+              :show-btns="false"
+              :expanded-on-start="true"
+              mode="code"
+              lang="zh"
+            />
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </div>
     <div class="list-footer"></div>
     <api-window
@@ -226,10 +257,12 @@ import {
 import dayjs from "dayjs";
 import { getActiveRules } from "../util";
 import apiWindow from "./edit-window.vue";
+import CodeEditor from "./code-editor";
 export default {
   name: "api-list",
   components: {
     "api-window": apiWindow,
+    "code-editor": CodeEditor,
   },
   mounted() {
     this.searchApi();
@@ -255,6 +288,7 @@ export default {
         name: "",
         ruleValue: "",
       },
+      currentRow: null,
     };
   },
   beforeDestroy() {
@@ -271,6 +305,9 @@ export default {
   methods: {
     visibleChange() {
       this.pageShow();
+    },
+    closeDetail() {
+      this.currentRow = null;
     },
     // 获取主进程数据
     getInit() {
@@ -310,6 +347,9 @@ export default {
         this.searchApi();
         this.getInit();
       }
+    },
+    handleSelectRow(val) {
+      this.currentRow = val;
     },
     autoUpdateList() {
       setInterval(() => {
@@ -452,6 +492,7 @@ export default {
                   ...item,
                   expandUrl: false,
                   expandName: false,
+                  payload: (item.payload && JSON.parse(item.payload)) || {},
                   updateTime: dayjs(item.time).format("YYYY-MM-DD HH:mm:ss"),
                   mockTime: item.mockTime
                     ? dayjs(item.mockTime).format("YYYY-MM-DD HH:mm:ss")
@@ -474,74 +515,160 @@ export default {
 };
 </script>
 
-<style scoped>
-.name {
-  position: relative;
-  white-space: nowrap;
-  line-height: 0;
-}
-.name-tag {
-  margin-right: 4px;
-}
-/deep/ .el-table__row:hover .name-expand-shadow {
-  background: #f4f7fa;
-}
-/deep/ .el-table__row:hover .name-expand-icon {
-  background: #f4f7fa;
-}
-.name-value {
-  max-width: 100%;
-  padding-right: 20px;
-  display: inline-block;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  position: relative;
-  line-height: 23px;
-  vertical-align: top;
-}
-.name-expand-shadow {
-  width: 500px;
-  height: 23px;
-  background: white;
-  display: inline-block;
-  z-index: 30;
-  position: relative;
-  transition: background-color 0.25s ease;
-}
-.name-expand-icon {
-  width: 12px;
-  position: absolute;
-  top: 8px;
-  right: 0;
-  background: white;
-  z-index: 1;
-  transition: background-color 0.25s ease;
-}
-.list-head /deep/ .el-select {
-  width: 300px;
-}
+<style scoped lang="less">
 .list-head {
   display: flex;
   margin-bottom: 10px;
   align-items: center;
+  /deep/ .el-select {
+    width: 300px;
+  }
+  &-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  &-name {
+    width: 300px;
+  }
+  &-item {
+    font-size: 14px;
+    margin-right: 10px;
+  }
+  &-item-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 10px;
+  }
 }
-.list-head-search {
-  flex: 1;
+.container {
   display: flex;
-  align-items: center;
+  .list-body {
+    width: 100%;
+    .name {
+      position: relative;
+      white-space: nowrap;
+      line-height: 0;
+    }
+    .name-value {
+      max-width: 100%;
+      padding-right: 20px;
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      position: relative;
+      line-height: 23px;
+      vertical-align: top;
+    }
+    .name-expand-shadow {
+      width: 500px;
+      height: 23px;
+      background: white;
+      display: inline-block;
+      z-index: 30;
+      position: relative;
+      transition: background-color 0.25s ease;
+    }
+    .name-expand-icon {
+      width: 12px;
+      position: absolute;
+      top: 8px;
+      right: 0;
+      background: white;
+      z-index: 1;
+      transition: background-color 0.25s ease;
+    }
+    &.show-detail {
+      width: 60%;
+    }
+  }
+  .detail {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    .el-icon-close {
+      position: absolute;
+      top: 0;
+      cursor: pointer;
+      right: 0;
+      width: 28px;
+      height: 28px;
+      z-index: 1;
+      font-size: 14px;
+      line-height: 28px;
+    }
+    /deep/ .el-tabs {
+      box-shadow: none;
+      border-left: none;
+      border-bottom: none;
+      border-color: #ccc;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      .el-tabs__content {
+        padding: 0;
+        flex: 1;
+      }
+      .el-tabs__header {
+        background-color: white;
+        border-bottom-color: #ccc;
+      }
+      .el-tabs__item {
+        height: 27.5px;
+        line-height: 27.5px;
+        font-size: 12px;
+        background-color: white;
+        color: #333333;
+        border-right-color: #ccc;
+        border-left-color: #ccc;
+        &.is-active {
+          background-color: #e6e6e6;
+        }
+      }
+      .el-tabs__nav-wrap {
+        margin-bottom: 0;
+      }
+      .el-tab-pane {
+        height: 100%;
+      }
+    }
+    .detail-item {
+      display: flex;
+      font-size: 12px;
+      border-bottom: 1px solid #cccccc;
+      .label {
+        flex: 0 0 100px;
+        text-align: right;
+        line-height: 1;
+        padding: 4px 6px;
+        font-weight: 400;
+        background-color: #e0e3e6;
+      }
+      .value {
+        padding: 4px 6px;
+        line-height: 1;
+        text-align: left;
+        word-break: break-all;
+      }
+    }
+  }
 }
-.list-head-name {
-  width: 300px;
-}
-.list-head-item {
-  font-size: 14px;
-  margin-right: 10px;
-}
-.list-head-item-label {
-  font-size: 14px;
-  font-weight: 500;
-  margin-right: 10px;
+
+/deep/ .el-table {
+  border-color: #ccc !important;
+  .el-table__cell {
+    border-color: #ccc !important;
+  }
+  .cell {
+    line-height: 1 !important;
+  }
+  .el-table__row:hover .name-expand-shadow {
+    background: #f4f7fa;
+  }
+  .el-table__row:hover .name-expand-icon {
+    background: #f4f7fa;
+  }
 }
 .highlight {
   color: blue;
