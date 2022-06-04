@@ -87,70 +87,6 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column width="100" label="mock模式">
-            <template slot-scope="scope">
-              <el-tag
-                class="name-tag font-bold"
-                effect="dark"
-                size="mini"
-                type="success"
-                >{{ scope.row.ruleValue }}</el-tag
-              >
-            </template>
-          </el-table-column>
-          <el-table-column prop="rule" min-width="300">
-            <template slot="header">
-              接口信息
-              <el-tooltip
-                effect="light"
-                content="最近一次匹配的接口信息"
-                placement="top"
-              >
-                <i class="el-icon-info"></i>
-              </el-tooltip>
-            </template>
-            <template slot-scope="scope">
-              <div
-                v-if="scope.row.rule"
-                class="no-wrap line-height-1 blue font-bold flex align-center"
-              >
-                <span class="table-label">rule：</span>
-                <div class="flex-1">{{ scope.row.rule }}</div>
-              </div>
-              <div
-                v-if="scope.row.url"
-                class="no-wrap line-height-1 font-bold flex align-baseline"
-              >
-                <span class="table-label">url：</span>
-                <span class="flex-1">{{ scope.row.url }}</span>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="mockTime" width="140">
-            <template slot="header">
-              mock时间
-              <el-tooltip
-                effect="light"
-                content="最近一次mock接口的时间"
-                placement="top"
-              >
-                <i class="el-icon-info"></i>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="updateTime" width="140">
-            <template slot="header">
-              更新时间
-              <el-tooltip
-                effect="light"
-                content="文件最近一次更新的时间"
-                placement="top"
-              >
-                <i class="el-icon-info"></i>
-              </el-tooltip>
-            </template>
-          </el-table-column>
           <el-table-column width="80">
             <template slot="header">
               mock
@@ -174,11 +110,16 @@
           </el-table-column>
           <el-table-column label="操作" width="160">
             <template slot-scope="scope">
-              <el-button size="mini" @click.stop="handleEdit(scope.row)">
+              <el-button
+                type="text"
+                size="mini"
+                @click.stop="handleEdit(scope.row)"
+              >
                 编辑
               </el-button>
               <el-button
-                type="danger"
+                class="danger"
+                type="text"
                 size="mini"
                 @click.stop="deleteApi(scope.row, scope.$index)"
               >
@@ -189,7 +130,6 @@
         </el-table>
       </div>
       <div v-if="currentRow" class="detail">
-        <i class="el-icon-close" @click="closeDetail"></i>
         <el-tabs type="border-card">
           <el-tab-pane label="详细信息">
             <div class="detail-item">
@@ -205,8 +145,34 @@
               <div class="value">{{ currentRow.rule }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">updateTime</div>
+              <div class="label">
+                <el-tooltip
+                  effect="light"
+                  content="最近一次更新mock文件的时间"
+                  placement="top"
+                >
+                  <i class="el-icon-info"></i>
+                </el-tooltip>
+                更新时间
+              </div>
               <div class="value">{{ currentRow.updateTime }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">mock模式</div>
+              <div class="value">{{ currentRow.ruleValue }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">
+                <el-tooltip
+                  effect="light"
+                  content="最近一次命中mock的时间"
+                  placement="top"
+                >
+                  <i class="el-icon-info"></i>
+                </el-tooltip>
+                mock时间
+              </div>
+              <div class="value">{{ currentRow.mockTime }}</div>
             </div>
           </el-tab-pane>
           <el-tab-pane label="query">
@@ -231,6 +197,7 @@
           </el-tab-pane>
         </el-tabs>
       </div>
+      <div v-else class="detail"></div>
     </div>
     <div class="list-footer"></div>
     <api-window
@@ -307,9 +274,6 @@ export default {
     visibleChange() {
       this.pageShow();
     },
-    closeDetail() {
-      this.$refs.table.setCurrentRow();
-    },
     // 获取主进程数据
     getInit() {
       init().then((data) => {
@@ -350,7 +314,6 @@ export default {
       }
     },
     handleSelectRow(val) {
-      console.log(val);
       this.currentRow = val;
     },
     autoUpdateList() {
@@ -463,11 +426,23 @@ export default {
           } else {
             Message.success("删除成功");
             this.list.splice(index, 1);
+            this.changeCurrentRow();
           }
         })
         .catch(() => {
           Message.error("删除失败");
         });
+    },
+    changeCurrentRow() {
+      this.$nextTick(() => {
+        let currentRow = this.list[0];
+        if (this.currentRow) {
+          currentRow = this.list.find(
+            (item) => this.currentRow.name === item.name
+          );
+        }
+        this.currentRow = currentRow;
+      });
     },
     batchDelete() {
       batchDelete(this.search)
@@ -505,6 +480,7 @@ export default {
               }
             });
             this.list = list;
+            this.changeCurrentRow();
           } else {
             Message.error("列表请求失败");
           }
@@ -545,8 +521,9 @@ export default {
 }
 .container {
   display: flex;
+  border: 1px solid #ccc;
   .list-body {
-    width: 100%;
+    width: 60%;
     .name {
       position: relative;
       white-space: nowrap;
@@ -581,14 +558,13 @@ export default {
       z-index: 1;
       transition: background-color 0.25s ease;
     }
-    &.show-detail {
-      width: 60%;
-    }
   }
   .detail {
     position: relative;
     flex: 1;
     overflow: hidden;
+    border-left: 1px solid #ccc;
+    margin-left: -2px;
     .el-icon-close {
       position: absolute;
       top: 0;
@@ -602,9 +578,7 @@ export default {
     }
     /deep/ .el-tabs {
       box-shadow: none;
-      border-left: none;
-      border-bottom: none;
-      border-color: #ccc;
+      border: none;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -617,8 +591,8 @@ export default {
         border-bottom-color: #ccc;
       }
       .el-tabs__item {
-        height: 27.5px;
-        line-height: 27.5px;
+        height: 30px;
+        line-height: 30px;
         font-size: 12px;
         background-color: white;
         color: #333333;
@@ -659,17 +633,30 @@ export default {
 
 /deep/ .el-table {
   border-color: #ccc !important;
+  border-left: none;
+  border-bottom: none;
+  border-top: none;
+  &::before,
+  &::after {
+    content: none;
+  }
   .el-table__cell {
     border-color: #ccc !important;
   }
+  .el-table__body .el-table__cell {
+    padding: 0 !important;
+  }
   .cell {
-    line-height: 1 !important;
+    line-height: 1.4 !important;
   }
   .el-table__row:hover .name-expand-shadow {
     background: #f4f7fa;
   }
   .el-table__row:hover .name-expand-icon {
     background: #f4f7fa;
+  }
+  .el-button.danger {
+    color: #fe4949;
   }
 }
 .highlight {
