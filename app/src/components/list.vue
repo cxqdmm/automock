@@ -63,6 +63,7 @@
     <div class="container">
       <div class="list-body" :class="{ 'show-detail': !!currentRow }">
         <el-table
+          ref="table"
           :data="list"
           highlight-current-row
           height="800"
@@ -307,7 +308,7 @@ export default {
       this.pageShow();
     },
     closeDetail() {
-      this.currentRow = null;
+      this.$refs.table.setCurrentRow();
     },
     // 获取主进程数据
     getInit() {
@@ -349,6 +350,7 @@ export default {
       }
     },
     handleSelectRow(val) {
+      console.log(val);
       this.currentRow = val;
     },
     autoUpdateList() {

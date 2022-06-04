@@ -46,3 +46,6 @@
 
 #1.0.16
 展示请求 query 和 payload
+
+#1.0.17
+修复 element-ui icon 展示不了的问题

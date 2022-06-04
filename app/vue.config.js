@@ -7,8 +7,13 @@ module.exports = defineConfig({
       return {
         devtool: "source-map",
       };
-    } else {
-      delete config.devtool;
     }
+    delete config.devtool;
+    return {
+      output: {
+        filename: "js/[name].[contenthash:8].js",
+        chunkFilename: "js/[name].[contenthash:8].chunk.js",
+      },
+    };
   },
 });

@@ -1,6 +1,6 @@
 {
   "name": "whistle.automock",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "提升本地mock接口数据的体验",
   "dependencies": {
     "koa": "^2.7.0",
