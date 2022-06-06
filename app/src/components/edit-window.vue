@@ -1,20 +1,24 @@
 <template>
   <el-dialog
     class="dialog"
-    :title="isEdit ? '编辑' : '新建'"
+    :title="title"
     fullscreen
     :visible="visible"
     width="1000px"
     :before-close="close"
   >
-    <div class="item">
+    <div class="item" v-if="disabledEdit">
       <span class="item-label"> 模式: </span>
-      <el-radio-group :disabled="isEdit" v-model="ruleValue">
+      <div class="item-value">{{ ruleValue }}</div>
+    </div>
+    <div class="item" v-else>
+      <span class="item-label"> 模式: </span>
+      <el-radio-group :disabled="disabledEdit" v-model="ruleValue">
         <el-radio label="pathname">pathname</el-radio>
         <el-radio label="href">href</el-radio>
       </el-radio-group>
     </div>
-    <div class="item" v-if="isEdit">
+    <div class="item" v-if="disabledEdit">
       <span class="item-label"> 名称: </span>
       <div class="item-value">{{ name }}</div>
     </div>
@@ -22,7 +26,6 @@
       <span class="item-label"> 名称: </span>
       <el-input
         placeholder="请输入url"
-        :disabled="isEdit"
         v-model="name"
         class="input-with-select"
       >
@@ -35,13 +38,16 @@
         v-model="content"
         :show-btns="false"
         :expanded-on-start="true"
-        mode="code"
+        :mode="mode"
+        :modes="['code']"
         lang="zh"
       />
     </div>
     <span slot="footer">
-      <el-button @click="close">取 消</el-button>
-      <el-button type="primary" @click="confirm">确 定</el-button>
+      <el-button @click="close">返回</el-button>
+      <el-button v-if="status !== 'view'" type="primary" @click="confirm"
+        >确 定</el-button
+      >
     </span>
   </el-dialog>
 </template>
@@ -51,9 +57,9 @@ import CodeEditor from "./code-editor";
 import { Message } from "element-ui";
 export default {
   props: {
-    isEdit: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: String,
+      default: "create",
     },
     data: {
       type: Object,
@@ -73,6 +79,22 @@ export default {
       name: "",
       ruleValue: "pathname",
     };
+  },
+  computed: {
+    disabledEdit() {
+      return this.status === "edit" || this.status === "view";
+    },
+    title() {
+      if (this.status === "edit") {
+        return "编辑";
+      } else if (this.status === "view") {
+        return "查看";
+      }
+      return "新建";
+    },
+    mode() {
+      return this.status === "view" ? "code" : "code";
+    },
   },
   watch: {
     visible(val) {

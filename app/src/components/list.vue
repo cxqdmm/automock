@@ -108,14 +108,15 @@
               </el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="160">
+          <el-table-column label="操作" width="100">
             <template slot-scope="scope">
               <el-button
                 type="text"
+                :class="{ 'default-text-btn': !scope.row.mock }"
                 size="mini"
                 @click.stop="handleEdit(scope.row)"
               >
-                编辑
+                {{ scope.row.mock ? "编辑" : "查看" }}
               </el-button>
               <el-button
                 class="danger"
@@ -201,8 +202,8 @@
     </div>
     <div class="list-footer"></div>
     <api-window
-      :is-edit="editData.isEdit"
       :visible="editData.visible"
+      :status="editData.status"
       :data="editData"
       @close="hideApiWindow"
       @confirm="handleConfirm"
@@ -211,7 +212,7 @@
 </template>
 
 <script>
-import { Message } from "element-ui";
+import { Message, MessageBox } from "element-ui";
 import {
   search,
   updateApiData,
@@ -251,7 +252,7 @@ export default {
       editRow: null,
       editData: {
         visible: false,
-        isEdit: false,
+        status: "create",
         content: {},
         name: "",
         ruleValue: "",
@@ -335,7 +336,7 @@ export default {
         this.editRow = row;
         this.editData.name = row.name;
         this.editData.ruleValue = row.ruleValue;
-        this.editData.isEdit = true;
+        this.editData.status = row.mock ? "edit" : "view";
         this.editData.visible = true;
       } catch (error) {
         Message.error(error.message);
@@ -349,7 +350,7 @@ export default {
       this.editData.name = name;
       this.editData.ruleValue = ruleValue;
 
-      if (this.editData.isEdit) {
+      if (this.editData.status === "edit") {
         this.updateApiData({
           name,
           content,
@@ -363,7 +364,7 @@ export default {
       }
     },
     handleCreate() {
-      this.editData.isEdit = false;
+      this.editData.status = "create";
       this.editData.content = {};
       this.editData.name = "";
       this.editData.visible = true;
@@ -419,19 +420,48 @@ export default {
         });
     },
     deleteApi(row, index) {
-      deleteApi(row.name)
-        .then((data) => {
-          if (data.code !== 200) {
-            Message.error("删除失败");
-          } else {
-            Message.success("删除成功");
-            this.list.splice(index, 1);
-            this.changeCurrentRow();
+      if (row.mock) {
+        MessageBox.confirm(
+          "该文件是mock文件，删除会导致mock失效，是否继续?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+            center: true,
           }
-        })
-        .catch(() => {
-          Message.error("删除失败");
-        });
+        )
+          .then(() => {
+            deleteApi(row.name)
+              .then((data) => {
+                if (data.code !== 200) {
+                  Message.error("删除失败");
+                } else {
+                  Message.success("删除成功");
+                  this.list.splice(index, 1);
+                  this.changeCurrentRow();
+                }
+              })
+              .catch(() => {
+                Message.error("删除失败");
+              });
+          })
+          .catch(() => {});
+      } else {
+        deleteApi(row.name)
+          .then((data) => {
+            if (data.code !== 200) {
+              Message.error("删除失败");
+            } else {
+              Message.success("删除成功");
+              this.list.splice(index, 1);
+              this.changeCurrentRow();
+            }
+          })
+          .catch(() => {
+            Message.error("删除失败");
+          });
+      }
     },
     changeCurrentRow() {
       this.$nextTick(() => {
@@ -494,6 +524,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+.default-text-btn {
+  color: #606266;
+}
 .list-head {
   display: flex;
   margin-bottom: 10px;
