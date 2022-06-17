@@ -16,6 +16,7 @@ import {
   Radio,
   Tabs,
   TabPane,
+  Alert,
 } from "element-ui";
 import App from "./App.vue";
 Vue.component(Input.name, Input);
@@ -34,6 +35,7 @@ Vue.component(RadioGroup.name, RadioGroup);
 Vue.component(Radio.name, Radio);
 Vue.component(Tabs.name, Tabs);
 Vue.component(TabPane.name, TabPane);
+Vue.component(Alert.name, Alert);
 Vue.config.productionTip = false;
 
 new Vue({

@@ -134,6 +134,10 @@
         <el-tabs type="border-card">
           <el-tab-pane label="详细信息">
             <div class="detail-item">
+              <div class="label">status</div>
+              <div class="value">{{ currentRow.status }}</div>
+            </div>
+            <div class="detail-item">
               <div class="label">文件名</div>
               <div class="value">{{ currentRow.name }}</div>
             </div>
@@ -331,8 +335,13 @@ export default {
     },
     handleEdit(row) {
       try {
-        this.editData.content =
-          typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+        try {
+          this.editData.content =
+            typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+        } catch (error) {
+          this.editData.content = {};
+        }
+
         this.editRow = row;
         this.editData.name = row.name;
         this.editData.ruleValue = row.ruleValue;
@@ -392,10 +401,9 @@ export default {
           if (code !== 200) {
             Message.error("更新失败");
           } else {
-            const parseData = JSON.parse(data.data);
-            this.editRow.time = parseData.time;
-            this.editRow.data = parseData.data;
-            this.editRow.updateTime = dayjs(parseData.time).format(
+            this.editRow.time = data.time;
+            this.editRow.data = data.data;
+            this.editRow.updateTime = dayjs(data.time).format(
               "YYYY-MM-DD HH:mm:ss"
             );
             Message.success("更新成功");

@@ -1,12 +1,29 @@
 <template>
   <el-dialog
     class="dialog"
-    :title="title"
     fullscreen
     :visible="visible"
     width="1000px"
     :before-close="close"
   >
+    <span class="action">
+      <el-button @click="close" size="medium">返回</el-button>
+      <el-button
+        v-if="status !== 'view'"
+        size="medium"
+        type="primary"
+        @click="confirm"
+        >保存</el-button
+      >
+      <el-alert
+        v-if="status === 'view'"
+        title="查看模式不支持修改文件"
+        type="warning"
+        show-icon
+        :closable="false"
+      >
+      </el-alert>
+    </span>
     <div class="item" v-if="disabledEdit">
       <span class="item-label"> 模式: </span>
       <div class="item-value">{{ ruleValue }}</div>
@@ -43,12 +60,6 @@
         lang="zh"
       />
     </div>
-    <span slot="footer">
-      <el-button @click="close">返回</el-button>
-      <el-button v-if="status !== 'view'" type="primary" @click="confirm"
-        >确 定</el-button
-      >
-    </span>
   </el-dialog>
 </template>
 
@@ -149,33 +160,39 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .item {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  &-label {
+    width: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 10px;
+    text-align: left;
+  }
+  &-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
-.item-label {
-  width: 60px;
-  font-size: 14px;
-  font-weight: 500;
-  margin-right: 10px;
-  text-align: right;
-}
-.item-value {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.dialog /deep/ .el-dialog {
-  display: flex;
-  flex-direction: column;
-}
-.dialog /deep/ .el-dialog__body {
-  flex: 1;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
+
+.dialog {
+  /deep/ .el-dialog__header {
+    display: none;
+  }
+  /deep/ .el-dialog__body {
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  /deep/ .el-dialog {
+    display: flex;
+    flex-direction: column;
+  }
 }
 .editor {
   flex: 1;
@@ -189,5 +206,22 @@ export default {
 }
 .name-protocol {
   width: 100px;
+}
+.title {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e6e6e6;
+}
+.action {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .el-alert {
+    position: absolute;
+    right: 20px;
+    width: auto;
+  }
 }
 </style>
