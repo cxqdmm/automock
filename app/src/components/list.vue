@@ -66,13 +66,16 @@
           ref="table"
           :data="list"
           highlight-current-row
-          height="800"
+          height="100%"
           border
           style="width: 100%"
           size="mini"
           row-key="name"
           @current-change="handleSelectRow"
         >
+          <el-table-column prop="name" label="#" width="40">
+            <template slot-scope="scope">{{ scope.$index + 1 }} </template>
+          </el-table-column>
           <el-table-column prop="name" label="文件名" min-width="300">
             <template slot-scope="scope">
               <div class="name">
@@ -535,9 +538,15 @@ export default {
 .default-text-btn {
   color: #606266;
 }
+.list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 .list-head {
   display: flex;
-  margin-bottom: 10px;
+  padding: 10px;
   align-items: center;
   /deep/ .el-select {
     width: 300px;
@@ -562,7 +571,9 @@ export default {
 }
 .container {
   display: flex;
+  flex: 1;
   border: 1px solid #ccc;
+  border-left: none;
   .list-body {
     width: 60%;
     .name {

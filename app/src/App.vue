@@ -15,13 +15,18 @@ export default {
 </script>
 
 <style>
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
 #app {
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 10px;
+  height: 100%;
 }
 .el-tooltip__popper {
   max-width: 400px;
