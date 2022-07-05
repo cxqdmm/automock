@@ -1,5 +1,5 @@
 export function search(params) {
-  return fetch("/cgi-bin/api-list", {
+  return fetch("/cgi-bin/automock/api-list", {
     method: "post",
     body: JSON.stringify(params),
     headers: {
@@ -10,12 +10,12 @@ export function search(params) {
   });
 }
 export function check() {
-  return fetch("/cgi-bin/check-api-list").then((response) => {
+  return fetch("/cgi-bin/automock/check-api-list").then((response) => {
     return response.json();
   });
 }
 export function init() {
-  return fetch("/cgi-bin/init?_=" + Date.now(), {
+  return fetch("/cgi-bin/automock/init?_=" + Date.now(), {
     method: "get",
     referrer: location.origin,
   }).then((response) => {
@@ -23,8 +23,20 @@ export function init() {
   });
 }
 
+export function getApiData(name) {
+  return fetch("/cgi-bin/automock/get-api-data", {
+    method: "post",
+    body: JSON.stringify({ name }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+
 export function updateApiData(name, data) {
-  return fetch("/cgi-bin/update-api-data", {
+  return fetch("/cgi-bin/automock/update-api-data", {
     method: "post",
     body: JSON.stringify({ name, data }),
     headers: {
@@ -36,7 +48,7 @@ export function updateApiData(name, data) {
 }
 
 export function createApiData(body) {
-  return fetch("/cgi-bin/create-api-data", {
+  return fetch("/cgi-bin/automock/create-api-data", {
     method: "post",
     body: JSON.stringify(body),
     headers: {
@@ -48,7 +60,7 @@ export function createApiData(body) {
 }
 
 export function updateApiMock(name, mock) {
-  return fetch("/cgi-bin/update-api-mock", {
+  return fetch("/cgi-bin/automock/update-api-mock", {
     method: "post",
     body: JSON.stringify({ name, mock }),
     headers: {
@@ -59,7 +71,7 @@ export function updateApiMock(name, mock) {
   });
 }
 export function deleteApi(name) {
-  return fetch("/cgi-bin/delete-api", {
+  return fetch("/cgi-bin/automock/delete-api", {
     method: "post",
     body: JSON.stringify({ name }),
     headers: {
@@ -70,7 +82,7 @@ export function deleteApi(name) {
   });
 }
 export function batchDelete(params) {
-  return fetch("/cgi-bin/batch-delete-api", {
+  return fetch("/cgi-bin/automock/batch-delete-api", {
     method: "post",
     body: JSON.stringify(params),
     headers: {

@@ -227,6 +227,7 @@ import {
   createApiData,
   deleteApi,
   batchDelete,
+  getApiData,
   check,
   init,
 } from "../service";
@@ -338,18 +339,30 @@ export default {
     },
     handleEdit(row) {
       try {
-        try {
-          this.editData.content =
-            typeof row.data === "string" ? JSON.parse(row.data) : row.data;
-        } catch (error) {
-          this.editData.content = {};
-        }
-
-        this.editRow = row;
-        this.editData.name = row.name;
-        this.editData.ruleValue = row.ruleValue;
-        this.editData.status = row.mock ? "edit" : "view";
-        this.editData.visible = true;
+        getApiData(row.name)
+          .then((res) => {
+            const { code, data } = res;
+            if (code !== 200) {
+              Message.error("接口内容获取失败");
+            } else {
+              this.editRow = row;
+              this.editData.name = row.name;
+              this.editData.ruleValue = row.ruleValue;
+              this.editData.status = row.mock ? "edit" : "view";
+              try {
+                this.editData.content =
+                  typeof data.data === "string"
+                    ? JSON.parse(data.data)
+                    : data.data;
+              } catch (error) {
+                this.editData.content = {};
+              }
+              this.editData.visible = true;
+            }
+          })
+          .catch(() => {
+            Message.error("接口内容获取失败");
+          });
       } catch (error) {
         Message.error(error.message);
       }
