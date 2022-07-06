@@ -22,7 +22,7 @@
         <el-input
           class="list-head-item list-head-name"
           clearable
-          placeholder="接口名模糊匹配"
+          placeholder="文件名模糊匹配"
           v-model="search.name"
           @keyup.enter.native="searchApi"
         >
@@ -61,11 +61,12 @@
       </div>
     </div>
     <div class="container">
-      <div class="list-body" :class="{ 'show-detail': !!currentRow }">
+      <div class="list-body">
         <el-table
           ref="table"
           :data="list"
-          highlight-current-row
+          :highlight-current-row="true"
+          :current-row-key="(currentRow && currentRow.name) || ''"
           height="100%"
           border
           style="width: 100%"
@@ -113,14 +114,6 @@
           </el-table-column>
           <el-table-column label="操作" width="100">
             <template slot-scope="scope">
-              <el-button
-                type="text"
-                :class="{ 'default-text-btn': !scope.row.mock }"
-                size="mini"
-                @click.stop="handleEdit(scope.row)"
-              >
-                {{ scope.row.mock ? "编辑" : "查看" }}
-              </el-button>
               <el-button
                 class="danger"
                 type="text"
@@ -203,11 +196,35 @@
               lang="zh"
             />
           </el-tab-pane>
+          <el-tab-pane label="response" v-if="currentRow.content">
+            <code-editor
+              ref="edit"
+              v-model="currentRow.content"
+              @input="handleFileChange(currentRow)"
+              :show-btns="false"
+              :expanded-on-start="true"
+              mode="code"
+              :modes="['code']"
+              lang="zh"
+            />
+            <div class="edit-alert" v-if="!currentRow.mock">
+              <i class="el-icon-info"></i>
+              <span>非mock文件不支持修改</span>
+            </div>
+            <div class="save-btn" v-if="currentRow.effect">
+              <span class="effect-icon"></span>
+              <el-button
+                size="small"
+                type="primary"
+                @click="handleUpdate(currentRow)"
+                >保存</el-button
+              >
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </div>
       <div v-else class="detail"></div>
     </div>
-    <div class="list-footer"></div>
     <api-window
       :visible="editData.visible"
       :status="editData.status"
@@ -219,6 +236,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import { Message, MessageBox } from "element-ui";
 import {
   search,
@@ -270,6 +288,13 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener("visibilitychange", this.visibleChange);
+  },
+  watch: {
+    currentRow(val) {
+      if (val) {
+        this.getCurrentRowData(val);
+      }
+    },
   },
   computed: {
     lockAutoUpdate() {
@@ -337,31 +362,35 @@ export default {
         });
       }, 2000);
     },
-    handleEdit(row) {
+    handleFileChange(row) {
+      if (row.mock) {
+        row.effect = true;
+      }
+    },
+    getCurrentRowData(row) {
+      this.currentRow.effect = false;
       try {
         getApiData(row.name)
           .then((res) => {
             const { code, data } = res;
             if (code !== 200) {
-              Message.error("接口内容获取失败");
+              Message.error("文件内容获取失败");
             } else {
-              this.editRow = row;
-              this.editData.name = row.name;
-              this.editData.ruleValue = row.ruleValue;
               this.editData.status = row.mock ? "edit" : "view";
+              let content = {};
               try {
-                this.editData.content =
+                content =
                   typeof data.data === "string"
                     ? JSON.parse(data.data)
                     : data.data;
               } catch (error) {
-                this.editData.content = {};
+                console.log(error);
               }
-              this.editData.visible = true;
+              Vue.set(this.currentRow, "content", content);
             }
           })
           .catch(() => {
-            Message.error("接口内容获取失败");
+            Message.error("文件内容获取失败");
           });
       } catch (error) {
         Message.error(error.message);
@@ -369,6 +398,13 @@ export default {
     },
     hideApiWindow() {
       this.editData.visible = false;
+    },
+    handleUpdate(row) {
+      this.updateApiData({
+        row,
+        name: row.name,
+        content: row.content,
+      });
     },
     handleConfirm({ content, name, ruleValue }) {
       this.editData.content = content;
@@ -401,7 +437,6 @@ export default {
           if (code !== 200) {
             Message.error(msg || "新建失败");
           } else {
-            Message.success("新建成功");
             this.hideApiWindow();
             this.searchApi();
           }
@@ -410,19 +445,17 @@ export default {
           Message.error(error.message || "更新失败");
         });
     },
-    updateApiData({ name, content }) {
+    updateApiData({ row, name, content }) {
       updateApiData(name, content)
         .then((res) => {
           const { code, data } = res;
           if (code !== 200) {
             Message.error("更新失败");
           } else {
-            this.editRow.time = data.time;
-            this.editRow.data = data.data;
-            this.editRow.updateTime = dayjs(data.time).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            Message.success("更新成功");
+            row.effect = false;
+            row.time = data.time;
+            row.data = data.data;
+            row.updateTime = dayjs(data.time).format("YYYY-MM-DD HH:mm:ss");
             this.hideApiWindow();
           }
         })
@@ -435,8 +468,6 @@ export default {
         .then((data) => {
           if (data.code !== 200) {
             Message.error("更新失败");
-          } else {
-            Message.success("更新成功");
           }
         })
         .catch(() => {
@@ -461,7 +492,6 @@ export default {
                 if (data.code !== 200) {
                   Message.error("删除失败");
                 } else {
-                  Message.success("删除成功");
                   this.list.splice(index, 1);
                   this.changeCurrentRow();
                 }
@@ -477,7 +507,6 @@ export default {
             if (data.code !== 200) {
               Message.error("删除失败");
             } else {
-              Message.success("删除成功");
               this.list.splice(index, 1);
               this.changeCurrentRow();
             }
@@ -504,7 +533,6 @@ export default {
           if (data.code !== 200) {
             Message.error("删除失败");
           } else {
-            Message.success("删除成功");
             this.searchApi();
           }
         })
@@ -522,6 +550,7 @@ export default {
                 return {
                   ...item,
                   expandUrl: false,
+                  effect: false,
                   expandName: false,
                   payload: (item.payload && JSON.parse(item.payload)) || {},
                   updateTime: dayjs(item.time).format("YYYY-MM-DD HH:mm:ss"),
@@ -588,7 +617,7 @@ export default {
   border: 1px solid #ccc;
   border-left: none;
   .list-body {
-    width: 60%;
+    width: 55%;
     .name {
       position: relative;
       white-space: nowrap;
@@ -764,5 +793,28 @@ export default {
 }
 .expand-icon {
   width: 20px;
+}
+.save-btn {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  .effect-icon {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 6px;
+    background-color: #f46c6b;
+  }
+}
+.edit-alert {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e6a23c;
 }
 </style>

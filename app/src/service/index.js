@@ -15,7 +15,7 @@ export function check() {
   });
 }
 export function init() {
-  return fetch("/cgi-bin/automock/init?_=" + Date.now(), {
+  return fetch("/cgi-bin/init?_=" + Date.now(), {
     method: "get",
     referrer: location.origin,
   }).then((response) => {
