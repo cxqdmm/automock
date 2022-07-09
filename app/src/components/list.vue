@@ -202,7 +202,10 @@
                 <i class="el-icon-info"></i> </el-tooltip
               ><span class="m-l-4">response</span></span
             >
-            <response :api="currentRow"></response>
+            <response
+              :api="currentRow"
+              @changeMockVersion="handeMockVersionChange"
+            ></response>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -380,6 +383,9 @@ export default {
     },
     hideApiWindow() {
       this.editData.visible = false;
+    },
+    handeMockVersionChange(versionName) {
+      this.currentRow.mockVersion = versionName;
     },
     handleConfirm({ content, name, ruleValue }) {
       this.editData.content = content;

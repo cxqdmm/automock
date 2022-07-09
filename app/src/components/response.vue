@@ -188,6 +188,8 @@ export default {
           const { code } = res;
           if (code !== 200) {
             Message.error("更新mock版本失败");
+          } else {
+            this.$emit("changeMockVersion", versionName);
           }
         })
         .catch((err) => {
