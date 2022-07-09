@@ -92,3 +92,73 @@ export function batchDelete(params) {
     return response.json();
   });
 }
+
+export function getVersions(params) {
+  return fetch("/cgi-bin/automock/get-versions", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+
+export function addVersion(params) {
+  return fetch("/cgi-bin/automock/add-new-version", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+
+export function deleteVersion(params) {
+  return fetch("/cgi-bin/automock/delete-version", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+export function updateVersionContent(params) {
+  return fetch("/cgi-bin/automock/update-version-content", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+export function updateVersionName(params) {
+  return fetch("/cgi-bin/automock/update-version-name", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
+
+export function setMockVersion(params) {
+  return fetch("/cgi-bin/automock/set-mock-version", {
+    method: "post",
+    body: JSON.stringify(params),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}

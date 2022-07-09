@@ -39,6 +39,10 @@ whistle.automock 是[whistle](https://github.com/avwo/whistle)的一个扩展脚
       上面三个接口命中的mock文件各不相同
      ```
 
+4. mock 文件支持版本管理
+   - source 原接口响应，开启 mock 后，可通过编辑修改响应值，主要用在临时 mock 场景，无需长久保存 mock 数据
+   - 新增版本 主要用于创建 mock 的多个副本，适用于需要长久保存 mock 数据的场景
+
 # 安装
 
 $ w2 install whistle.automock

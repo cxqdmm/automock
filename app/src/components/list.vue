@@ -83,7 +83,7 @@
                 <div
                   class="name-value font-bold"
                   :class="{
-                    blue: isActiveMockFile(scope.row.rule),
+                    blue: isActiveMockFile(scope.row.rule) && scope.row.mock,
                   }"
                 >
                   {{ scope.row.name }}
@@ -196,30 +196,13 @@
               lang="zh"
             />
           </el-tab-pane>
-          <el-tab-pane label="response" v-if="currentRow.content">
-            <code-editor
-              ref="edit"
-              v-model="currentRow.content"
-              @input="handleFileChange(currentRow)"
-              :show-btns="false"
-              :expanded-on-start="true"
-              mode="code"
-              :modes="['code']"
-              lang="zh"
-            />
-            <div class="edit-alert" v-if="!currentRow.mock">
-              <i class="el-icon-info"></i>
-              <span>非mock文件不支持修改</span>
-            </div>
-            <div class="save-btn" v-if="currentRow.effect">
-              <span class="effect-icon"></span>
-              <el-button
-                size="small"
-                type="primary"
-                @click="handleUpdate(currentRow)"
-                >保存</el-button
-              >
-            </div>
+          <el-tab-pane v-if="currentRow">
+            <span slot="label">
+              <el-tooltip effect="light" content="响应值" placement="top">
+                <i class="el-icon-info"></i> </el-tooltip
+              ><span class="m-l-4">response</span></span
+            >
+            <response :api="currentRow"></response>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -240,7 +223,6 @@ import Vue from "vue";
 import { Message, MessageBox } from "element-ui";
 import {
   search,
-  updateApiData,
   updateApiMock,
   createApiData,
   deleteApi,
@@ -253,11 +235,13 @@ import dayjs from "dayjs";
 import { getActiveRules } from "../util";
 import apiWindow from "./edit-window.vue";
 import CodeEditor from "./code-editor";
+import response from "./response";
 export default {
   name: "api-list",
   components: {
     "api-window": apiWindow,
     "code-editor": CodeEditor,
+    response: response,
   },
   mounted() {
     this.searchApi();
@@ -366,13 +350,7 @@ export default {
         });
       }, 2000);
     },
-    handleFileChange(row) {
-      if (row.mock) {
-        row.effect = true;
-      }
-    },
     getCurrentRowData(row) {
-      this.currentRow.effect = false;
       try {
         getApiData(row.name)
           .then((res) => {
@@ -403,30 +381,15 @@ export default {
     hideApiWindow() {
       this.editData.visible = false;
     },
-    handleUpdate(row) {
-      this.updateApiData({
-        row,
-        name: row.name,
-        content: row.content,
-      });
-    },
     handleConfirm({ content, name, ruleValue }) {
       this.editData.content = content;
       this.editData.name = name;
       this.editData.ruleValue = ruleValue;
-
-      if (this.editData.status === "edit") {
-        this.updateApiData({
-          name,
-          content,
-        });
-      } else {
-        this.createApi({
-          name,
-          content,
-          ruleValue,
-        });
-      }
+      this.createApi({
+        name,
+        content,
+        ruleValue,
+      });
     },
     handleCreate() {
       this.editData.status = "create";
@@ -447,24 +410,6 @@ export default {
         })
         .catch((error) => {
           Message.error(error.message || "更新失败");
-        });
-    },
-    updateApiData({ row, name, content }) {
-      updateApiData(name, content)
-        .then((res) => {
-          const { code, data } = res;
-          if (code !== 200) {
-            Message.error("更新失败");
-          } else {
-            row.effect = false;
-            row.time = data.time;
-            row.data = data.data;
-            row.updateTime = dayjs(data.time).format("YYYY-MM-DD HH:mm:ss");
-            this.hideApiWindow();
-          }
-        })
-        .catch(() => {
-          Message.error("更新失败");
         });
     },
     updateMock(mock, row) {
@@ -554,7 +499,6 @@ export default {
                 return {
                   ...item,
                   expandUrl: false,
-                  effect: false,
                   expandName: false,
                   payload: (item.payload && JSON.parse(item.payload)) || {},
                   updateTime: dayjs(item.time).format("YYYY-MM-DD HH:mm:ss"),
@@ -757,9 +701,6 @@ export default {
     color: #fe4949;
   }
 }
-.highlight {
-  color: blue;
-}
 .line-height-1 {
   line-height: 1.2;
 }
@@ -798,27 +739,7 @@ export default {
 .expand-icon {
   width: 20px;
 }
-.save-btn {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  .effect-icon {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    display: block;
-    width: 6px;
-    height: 6px;
-    border-radius: 6px;
-    background-color: #f46c6b;
-  }
-}
-.edit-alert {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #e6a23c;
+.m-l-4 {
+  margin-left: 4px;
 }
 </style>
