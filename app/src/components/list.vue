@@ -83,7 +83,7 @@
                 <div
                   class="name-value font-bold"
                   :class="{
-                    blue: scope.row.mock,
+                    blue: isActiveMockFile(scope.row.rule),
                   }"
                 >
                   {{ scope.row.name }}
@@ -307,6 +307,10 @@ export default {
   methods: {
     visibleChange() {
       this.pageShow();
+    },
+    isActiveMockFile(rule) {
+      // 判断当前mock文件是否被激活
+      return this.activeRules.some((item) => item.value === rule);
     },
     // 获取主进程数据
     getInit() {
