@@ -11,7 +11,7 @@
         <el-tooltip
           v-if="item.type === 'source'"
           effect="light"
-          content="原始接口响应"
+          content="Original Response"
           placement="top"
         >
           <i class="el-icon-info"></i>
@@ -25,7 +25,11 @@
         ></i>
       </div>
       <div class="add" @click="onCreate">
-        <el-tooltip effect="light" content="点击新增mock版本" placement="top">
+        <el-tooltip
+          effect="light"
+          content="Add response version"
+          placement="top"
+        >
           <span>+</span>
         </el-tooltip>
       </div>
@@ -43,7 +47,10 @@
       />
       <div class="edit-alert" v-if="!api.mock && currentFile.type === 'source'">
         <i class="el-icon-info"></i>
-        <span>未开启mock，原始接口响应不支持修改</span>
+        <span
+          >The original response cannot be modified when mock is turned
+          off</span
+        >
       </div>
       <div
         class="save-btn"
@@ -53,19 +60,19 @@
       >
         <span class="effect-icon"></span>
         <el-button size="small" type="primary" @click="handleUpdate()"
-          >保存</el-button
+          >Save</el-button
         >
       </div>
     </div>
     <el-dialog :visible.sync="versionModal.visible" width="30%">
       <div class="flex">
-        <div style="white-space: nowrap">版本名：</div>
+        <div style="white-space: nowrap">Version：</div>
         <el-input v-model="versionModal.name"></el-input>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="versionModal.visible = false">取 消</el-button>
+        <el-button @click="versionModal.visible = false">Cancel</el-button>
         <el-button type="primary" @click="handleVersionConfirm"
-          >确 定</el-button
+          >Confirm</el-button
         >
       </span>
     </el-dialog>
@@ -107,6 +114,9 @@ export default {
     mockVersion() {
       return this.api.mockVersion;
     },
+    date() {
+      return this.api.date;
+    },
   },
   watch: {
     name: {
@@ -115,10 +125,15 @@ export default {
         this.currentFile = {
           content: {},
         };
-        this.getFile();
+        this.getSourceVersion();
         this.getHistoryVersions();
       },
       immediate: true,
+    },
+    date() {
+      if (!this.mock) {
+        this.getSourceVersion();
+      }
     },
   },
   data() {
@@ -241,7 +256,7 @@ export default {
           Message.error("更新失败");
         });
     },
-    getFile() {
+    getSourceVersion() {
       try {
         getApiData(this.name)
           .then((res) => {
@@ -263,7 +278,14 @@ export default {
                 type: "source",
                 content,
               };
-              this.responseList.unshift(file);
+              const index = this.responseList.findIndex(
+                (item) => item.filename === "source"
+              );
+              if (index > -1) {
+                this.responseList.splice(index, 1, file);
+              } else {
+                this.responseList.unshift(file);
+              }
               if (!this.mockVersion) {
                 this.currentFile = file;
               }
@@ -366,7 +388,7 @@ export default {
 }
 .save-btn {
   position: absolute;
-  top: 160px;
+  top: 100px;
   right: 20px;
   .effect-icon {
     position: absolute;

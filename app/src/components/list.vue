@@ -3,12 +3,12 @@
     <div class="list-head">
       <div class="list-head-search">
         <div class="list-head-item">
-          <span class="list-head-item-label">规则</span>
+          <span class="list-head-item-label">rule</span>
           <el-select
             class="list-head-item"
+            size="small"
             v-model="search.rule"
             @change="searchApi"
-            placeholder="请选择关联的pattern"
           >
             <el-option
               v-for="item in activeRules"
@@ -22,7 +22,8 @@
         <el-input
           class="list-head-item list-head-name"
           clearable
-          placeholder="文件名模糊匹配"
+          size="small"
+          placeholder="Fuzzy search"
           v-model="search.name"
           @keyup.enter.native="searchApi"
         >
@@ -35,7 +36,7 @@
       </div>
       <div class="list-head-action">
         <el-button @click="handleCreate" size="mini" type="primary"
-          >新建</el-button
+          >Create File</el-button
         >
         <el-divider direction="vertical"></el-divider>
         <el-button
@@ -43,19 +44,19 @@
           size="mini"
           type="danger"
           @click="batchDelete"
-          >清空mock</el-button
+          >Delete mocked files</el-button
         >
         <el-button v-else @click="batchDelete" size="mini" type="danger"
-          >清空非mock项</el-button
+          >Delete unmocked files</el-button
         >
         <el-divider direction="vertical"></el-divider>
         <el-switch
           v-model="search.onlymock"
           @change="searchApi"
-          active-text="显示mock"
+          :active-text="search.onlymock ? 'mock files' : 'All files'"
           inactive-text=""
-          active-color="#13ce66"
-          inactive-color="#ff4949"
+          active-color="#3f9eff"
+          inactive-color="#ccc"
         >
         </el-switch>
       </div>
@@ -77,7 +78,7 @@
           <el-table-column prop="name" label="#" width="40">
             <template slot-scope="scope">{{ scope.$index + 1 }} </template>
           </el-table-column>
-          <el-table-column prop="name" label="文件名" min-width="300">
+          <el-table-column prop="name" label="Filename" min-width="300">
             <template slot-scope="scope">
               <div class="name">
                 <div
@@ -91,36 +92,27 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column width="80">
-            <template slot="header">
-              mock
-              <el-tooltip
-                effect="light"
-                content="开启mock后，文件内容只能通过手动编辑修改"
-                placement="top"
-              >
-                <i class="el-icon-info"></i>
-              </el-tooltip>
-            </template>
+          <el-table-column width="70" align="center">
+            <template slot="header"> Mock </template>
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.mock"
                 @input="updateMock($event, scope.row)"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+                active-color="#3f9eff"
+                inactive-color="#ccc"
               >
               </el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="100">
+          <el-table-column label="Operation" width="80" align="center">
             <template slot-scope="scope">
               <el-button
                 class="danger"
                 type="text"
                 size="mini"
+                icon="el-icon-delete"
                 @click.stop="deleteApi(scope.row, scope.$index)"
               >
-                删除
               </el-button>
             </template>
           </el-table-column>
@@ -128,13 +120,17 @@
       </div>
       <div v-if="currentRow" class="detail">
         <el-tabs type="border-card">
-          <el-tab-pane label="详细信息">
+          <el-tab-pane label="Overview">
+            <div class="detail-item">
+              <div class="label">mock mode</div>
+              <div class="value">{{ currentRow.ruleValue }}</div>
+            </div>
             <div class="detail-item">
               <div class="label">status</div>
               <div class="value">{{ currentRow.status }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">文件名</div>
+              <div class="label">filename</div>
               <div class="value">{{ currentRow.name }}</div>
             </div>
             <div class="detail-item">
@@ -146,37 +142,24 @@
               <div class="value">{{ currentRow.rule }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">
-                <el-tooltip
-                  effect="light"
-                  content="最近一次更新mock文件的时间"
-                  placement="top"
-                >
-                  <i class="el-icon-info"></i>
-                </el-tooltip>
-                更新时间
-              </div>
-              <div class="value">{{ currentRow.updateTime }}</div>
-            </div>
-            <div class="detail-item">
-              <div class="label">mock模式</div>
-              <div class="value">{{ currentRow.ruleValue }}</div>
+              <div class="label">date</div>
+              <div class="value">{{ currentRow.date }}</div>
             </div>
             <div class="detail-item">
               <div class="label">
                 <el-tooltip
                   effect="light"
-                  content="最近一次命中mock的时间"
+                  content="The latest hitting the mock"
                   placement="top"
                 >
                   <i class="el-icon-info"></i>
                 </el-tooltip>
-                mock时间
+                mock time
               </div>
               <div class="value">{{ currentRow.mockTime }}</div>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="query">
+          <el-tab-pane label="Query">
             <div
               class="detail-item"
               v-for="key in Object.keys(currentRow.query || {})"
@@ -186,7 +169,7 @@
               <div class="value">{{ currentRow.query[key] }}</div>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="payload">
+          <el-tab-pane label="Payload">
             <code-editor
               ref="edit"
               v-model="currentRow.payload"
@@ -197,11 +180,7 @@
             />
           </el-tab-pane>
           <el-tab-pane v-if="currentRow">
-            <span slot="label">
-              <el-tooltip effect="light" content="响应值" placement="top">
-                <i class="el-icon-info"></i> </el-tooltip
-              ><span class="m-l-4">response</span></span
-            >
+            <span slot="label">Response</span>
             <response
               :api="currentRow"
               @changeMockVersion="handeMockVersionChange"
@@ -260,7 +239,7 @@ export default {
         onlymock: false,
       },
       list: [],
-      activeRules: [{ name: "全部", value: "" }], // whistle 激活的 automock 规则列表
+      activeRules: [{ name: "All", value: "" }], // whistle 激活的 automock 规则列表
       view: {},
       editRow: null,
       editData: {
@@ -330,7 +309,7 @@ export default {
         name: item,
         value: item,
       }));
-      this.activeRules.unshift({ name: "全部", value: "" });
+      this.activeRules.unshift({ name: "All", value: "" });
     },
     pageShow() {
       if (document.visibilityState === "visible") {
@@ -507,7 +486,7 @@ export default {
                   expandUrl: false,
                   expandName: false,
                   payload: (item.payload && JSON.parse(item.payload)) || {},
-                  updateTime: dayjs(item.time).format("YYYY-MM-DD HH:mm:ss"),
+                  date: dayjs(item.date).format("YYYY-MM-DD HH:mm:ss"),
                   mockTime: item.mockTime
                     ? dayjs(item.mockTime).format("YYYY-MM-DD HH:mm:ss")
                     : "",
@@ -570,6 +549,7 @@ export default {
   flex: 1;
   border: 1px solid #ccc;
   border-left: none;
+  overflow: hidden;
   .list-body {
     width: 55%;
     .name {
@@ -605,6 +585,10 @@ export default {
       background: white;
       z-index: 1;
       transition: background-color 0.25s ease;
+    }
+    /deep/ .el-table th.el-table__cell > .cell {
+      color: #333;
+      font-weight: 500;
     }
   }
   .detail {
