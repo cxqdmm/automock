@@ -10,11 +10,11 @@
       >
         <el-tooltip
           v-if="item.type === 'source'"
-          effect="light"
+          effect="dark"
           content="Original Response"
           placement="top"
         >
-          <i class="el-icon-info"></i>
+          <i class="el-icon-warning-outline"></i>
         </el-tooltip>
         {{ item.filename }}
         <i
@@ -26,11 +26,11 @@
       </div>
       <div class="add" @click="onCreate">
         <el-tooltip
-          effect="light"
+          effect="dark"
           content="Add response version"
           placement="top"
         >
-          <span>+</span>
+          <i class="el-icon-plus"></i>
         </el-tooltip>
       </div>
     </div>
@@ -46,7 +46,7 @@
         lang="zh"
       />
       <div class="edit-alert" v-if="!api.mock && currentFile.type === 'source'">
-        <i class="el-icon-info"></i>
+        <i class="el-icon-warning-outline"></i>
         <span
           >The original response cannot be modified when mock is turned
           off</span

@@ -3,11 +3,11 @@
     <div class="list-head">
       <div class="list-head-search">
         <div class="list-head-item">
-          <span class="list-head-item-label">rule</span>
+          <span class="list-head-item-label">Rule</span>
           <el-select
             class="list-head-item"
             size="small"
-            v-model="search.rule"
+            v-model="searchParam.rule"
             @change="searchApi"
           >
             <el-option
@@ -23,8 +23,8 @@
           class="list-head-item list-head-name"
           clearable
           size="small"
-          placeholder="Fuzzy search"
-          v-model="search.name"
+          placeholder="Fuzzy Search"
+          v-model="searchParam.name"
           @keyup.enter.native="searchApi"
         >
           <el-button
@@ -33,32 +33,68 @@
             @click="searchApi"
           ></el-button>
         </el-input>
+        <el-divider direction="vertical"></el-divider>
+        <el-radio-group
+          class="m-l-10"
+          v-model="searchParam.range"
+          size="small"
+          @change="searchApi"
+        >
+          <el-radio-button label="all">All</el-radio-button>
+          <el-radio-button label="mocking">Mocking</el-radio-button>
+          <el-radio-button label="not-mocking">Not Mocking</el-radio-button>
+          <el-radio-button label="locked">Locked</el-radio-button>
+        </el-radio-group>
       </div>
       <div class="list-head-action">
-        <el-button @click="handleCreate" size="mini" type="primary"
-          >Create File</el-button
-        >
-        <el-divider direction="vertical"></el-divider>
         <el-button
-          v-if="search.onlymock"
+          @click="handleCreate"
+          icon="el-icon-plus"
+          size="mini"
+          type="primary"
+        ></el-button>
+        <el-divider
+          v-if="searchParam.range !== 'locked'"
+          direction="vertical"
+        ></el-divider>
+        <el-dropdown
+          v-if="searchParam.range === 'all'"
+          size="mini"
+          @command="handleBatchDelete"
+        >
+          <el-button type="primary" size="mini">
+            Delete<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="mocking">Mocking</el-dropdown-item>
+            <el-dropdown-item command="not-mocking"
+              >Not Mocking</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-button
+          v-if="searchParam.range === 'mocking'"
           size="mini"
           type="danger"
-          @click="batchDelete"
-          >Delete mocked files</el-button
+          @click="handleBatchDelete('mocking')"
+          >Delete</el-button
         >
-        <el-button v-else @click="batchDelete" size="mini" type="danger"
-          >Delete unmocked files</el-button
+        <el-button
+          v-if="searchParam.range === 'not-mocking'"
+          @click="handleBatchDelete('not-mocking')"
+          size="mini"
+          type="danger"
+          >Delete</el-button
         >
-        <el-divider direction="vertical"></el-divider>
-        <el-switch
-          v-model="search.onlymock"
-          @change="searchApi"
-          :active-text="search.onlymock ? 'mock files' : 'All files'"
-          inactive-text=""
-          active-color="#3f9eff"
-          inactive-color="#ccc"
+        <el-tooltip
+          v-if="searchParam.range !== 'locked'"
+          class="m-l-10"
+          effect="dark"
+          content="Locked files can not deleted in batches"
+          placement="top"
         >
-        </el-switch>
+          <i class="el-icon-warning-outline"></i>
+        </el-tooltip>
       </div>
     </div>
     <div class="container">
@@ -85,6 +121,7 @@
                   class="name-value font-bold"
                   :class="{
                     blue: isActiveMockFile(scope.row.rule) && scope.row.mock,
+                    error: scope.row.status !== 200,
                   }"
                 >
                   {{ scope.row.name }}
@@ -107,11 +144,20 @@
           <el-table-column label="Operation" width="80" align="center">
             <template slot-scope="scope">
               <el-button
-                class="danger"
+                class="danger icon"
                 type="text"
                 size="mini"
                 icon="el-icon-delete"
-                @click.stop="deleteApi(scope.row, scope.$index)"
+                @click.stop="handleDelete(scope.row, scope.$index)"
+              >
+              </el-button>
+              <el-button
+                type="text"
+                class="icon"
+                :class="{ green: scope.row.locked }"
+                size="mini"
+                :icon="scope.row.locked ? 'el-icon-lock' : 'el-icon-unlock'"
+                @click.stop="updateLock(!scope.row.locked, scope.row)"
               >
               </el-button>
             </template>
@@ -122,39 +168,39 @@
         <el-tabs type="border-card">
           <el-tab-pane label="Overview">
             <div class="detail-item">
-              <div class="label">mock mode</div>
+              <div class="label">Mock Mode</div>
               <div class="value">{{ currentRow.ruleValue }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">status</div>
+              <div class="label">Status</div>
               <div class="value">{{ currentRow.status }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">filename</div>
+              <div class="label">Filename</div>
               <div class="value">{{ currentRow.name }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">url</div>
+              <div class="label">Url</div>
               <div class="value">{{ currentRow.url }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">rule</div>
+              <div class="label">Rule</div>
               <div class="value">{{ currentRow.rule }}</div>
             </div>
             <div class="detail-item">
-              <div class="label">date</div>
+              <div class="label">Date</div>
               <div class="value">{{ currentRow.date }}</div>
             </div>
             <div class="detail-item">
               <div class="label">
                 <el-tooltip
-                  effect="light"
+                  effect="dark"
                   content="The latest hitting the mock"
                   placement="top"
                 >
-                  <i class="el-icon-info"></i>
+                  <i class="el-icon-warning-outline"></i>
                 </el-tooltip>
-                mock time
+                Mock Date
               </div>
               <div class="value">{{ currentRow.mockTime }}</div>
             </div>
@@ -209,6 +255,7 @@ import {
   createApiData,
   deleteApi,
   batchDelete,
+  updateApiLock,
   getApiData,
   check,
   init,
@@ -233,10 +280,10 @@ export default {
   },
   data() {
     return {
-      search: {
+      searchParam: {
         name: "",
         rule: "",
-        onlymock: false,
+        range: "all", // "all" | "mocking" | "not-mocking" | "locked"
       },
       list: [],
       activeRules: [{ name: "All", value: "" }], // whistle 激活的 automock 规则列表
@@ -363,6 +410,17 @@ export default {
     hideApiWindow() {
       this.editData.visible = false;
     },
+    changeCurrentRow() {
+      this.$nextTick(() => {
+        let currentRow = this.list[0];
+        if (this.currentRow) {
+          currentRow = this.list.find(
+            (item) => this.currentRow.name === item.name
+          );
+        }
+        this.currentRow = currentRow;
+      });
+    },
     handeMockVersionChange(versionName) {
       this.currentRow.mockVersion = versionName;
     },
@@ -397,6 +455,19 @@ export default {
           Message.error(error.message || "更新失败");
         });
     },
+    updateLock(locked, row) {
+      updateApiLock(row.name, locked)
+        .then((data) => {
+          if (data.code !== 200) {
+            Message.error("更新失败");
+          } else {
+            row.locked = locked;
+          }
+        })
+        .catch(() => {
+          Message.error("更新失败");
+        });
+    },
     updateMock(mock, row) {
       updateApiMock(row.name, mock)
         .then((data) => {
@@ -408,26 +479,40 @@ export default {
           Message.error("更新失败");
         });
     },
-    deleteApi(row, index) {
-      if (row.mock) {
-        MessageBox.confirm(
-          "该文件是mock文件，删除会导致mock失效，是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-            center: true,
+    handleDelete(row, index) {
+      deleteApi(row.name)
+        .then((data) => {
+          if (data.code !== 200) {
+            Message.error("删除失败");
+          } else {
+            this.list.splice(index, 1);
+            this.changeCurrentRow();
           }
-        )
+        })
+        .catch(() => {
+          Message.error("删除失败");
+        });
+    },
+    handleBatchDelete(range) {
+      let title = "",
+        message = "";
+      range === "mocking" &&
+        ((title = "确定删除开启mock的文件么?"),
+        (message = "删除后将丢失mock文件"));
+      if (title) {
+        MessageBox.confirm(message, title, {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          center: true,
+        })
           .then(() => {
-            deleteApi(row.name)
+            batchDelete(this.searchParam)
               .then((data) => {
                 if (data.code !== 200) {
                   Message.error("删除失败");
                 } else {
-                  this.list.splice(index, 1);
-                  this.changeCurrentRow();
+                  this.searchApi();
                 }
               })
               .catch(() => {
@@ -436,13 +521,12 @@ export default {
           })
           .catch(() => {});
       } else {
-        deleteApi(row.name)
+        batchDelete(this.searchParam)
           .then((data) => {
             if (data.code !== 200) {
               Message.error("删除失败");
             } else {
-              this.list.splice(index, 1);
-              this.changeCurrentRow();
+              this.searchApi();
             }
           })
           .catch(() => {
@@ -450,32 +534,8 @@ export default {
           });
       }
     },
-    changeCurrentRow() {
-      this.$nextTick(() => {
-        let currentRow = this.list[0];
-        if (this.currentRow) {
-          currentRow = this.list.find(
-            (item) => this.currentRow.name === item.name
-          );
-        }
-        this.currentRow = currentRow;
-      });
-    },
-    batchDelete() {
-      batchDelete(this.search)
-        .then((data) => {
-          if (data.code !== 200) {
-            Message.error("删除失败");
-          } else {
-            this.searchApi();
-          }
-        })
-        .catch(() => {
-          Message.error("删除失败");
-        });
-    },
     searchApi() {
-      search(this.search)
+      search(this.searchParam)
         .then((res) => {
           const { code, data } = res || {};
           if (code === 200) {
@@ -485,6 +545,7 @@ export default {
                   ...item,
                   expandUrl: false,
                   expandName: false,
+                  locked: item.locked,
                   payload: (item.payload && JSON.parse(item.payload)) || {},
                   date: dayjs(item.date).format("YYYY-MM-DD HH:mm:ss"),
                   mockTime: item.mockTime
@@ -525,6 +586,10 @@ export default {
   align-items: center;
   /deep/ .el-select {
     width: 300px;
+  }
+  &-action {
+    display: flex;
+    align-items: center;
   }
   &-search {
     flex: 1;
@@ -707,7 +772,7 @@ export default {
   color: #3f9eff;
 }
 .font-bold {
-  font-weight: 600;
+  font-weight: bold;
 }
 .flex {
   display: flex;
@@ -731,5 +796,18 @@ export default {
 }
 .m-l-4 {
   margin-left: 4px;
+}
+.m-l-10 {
+  margin-left: 10px;
+}
+.icon {
+  font-size: 16px;
+  padding: 4px 2px;
+}
+.error {
+  color: tomato;
+}
+.green {
+  color: #67c23a;
 }
 </style>

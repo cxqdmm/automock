@@ -13,10 +13,14 @@ import {
   Tag,
   Tooltip,
   RadioGroup,
+  RadioButton,
   Radio,
   Tabs,
   TabPane,
   Alert,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
 } from "element-ui";
 import App from "./App.vue";
 Vue.component(Input.name, Input);
@@ -32,10 +36,14 @@ Vue.component(Divider.name, Divider);
 Vue.component(Tag.name, Tag);
 Vue.component(Tooltip.name, Tooltip);
 Vue.component(RadioGroup.name, RadioGroup);
+Vue.component(RadioButton.name, RadioButton);
 Vue.component(Radio.name, Radio);
 Vue.component(Tabs.name, Tabs);
 Vue.component(TabPane.name, TabPane);
 Vue.component(Alert.name, Alert);
+Vue.component(Dropdown.name, Dropdown);
+Vue.component(DropdownItem.name, DropdownItem);
+Vue.component(DropdownMenu.name, DropdownMenu);
 Vue.config.productionTip = false;
 
 new Vue({

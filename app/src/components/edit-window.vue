@@ -7,49 +7,33 @@
     :before-close="close"
   >
     <span class="action">
-      <el-button @click="close" size="medium">返回</el-button>
+      <el-button @click="close" size="medium">Cancel</el-button>
       <el-button
         v-if="status !== 'view'"
         size="medium"
         type="primary"
         @click="confirm"
-        >保存</el-button
+        >Save</el-button
       >
-      <el-alert
-        v-if="status === 'view'"
-        title="查看模式不支持修改文件"
-        type="warning"
-        show-icon
-        :closable="false"
-      >
-      </el-alert>
     </span>
-    <div class="item" v-if="disabledEdit">
-      <span class="item-label"> 模式: </span>
-      <div class="item-value">{{ ruleValue }}</div>
-    </div>
-    <div class="item" v-else>
-      <span class="item-label"> 模式: </span>
-      <el-radio-group :disabled="disabledEdit" v-model="ruleValue">
+    <div class="item">
+      <span class="item-label"> Mode: </span>
+      <el-radio-group v-model="ruleValue">
         <el-radio label="pathname">pathname</el-radio>
         <el-radio label="href">href</el-radio>
       </el-radio-group>
     </div>
-    <div class="item" v-if="disabledEdit">
-      <span class="item-label"> 名称: </span>
-      <div class="item-value">{{ name }}</div>
-    </div>
-    <div class="item" v-else>
-      <span class="item-label"> 名称: </span>
+    <div class="item">
+      <span class="item-label"> Filename: </span>
       <el-input
-        placeholder="请输入url"
+        placeholder="Please Input Url"
         v-model="name"
         class="input-with-select"
       >
       </el-input>
     </div>
     <div class="editor">
-      <span class="item-label"> 内容: </span>
+      <span class="item-label"> Response: </span>
       <code-editor
         ref="edit"
         v-model="content"
@@ -166,11 +150,11 @@ export default {
   align-items: center;
   margin-bottom: 10px;
   &-label {
-    width: 40px;
+    width: 80px;
     font-size: 14px;
     font-weight: 500;
     margin-right: 10px;
-    text-align: left;
+    text-align: right;
   }
   &-value {
     white-space: nowrap;

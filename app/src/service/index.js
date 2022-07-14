@@ -70,6 +70,18 @@ export function updateApiMock(name, mock) {
     return response.json();
   });
 }
+
+export function updateApiLock(name, locked) {
+  return fetch("/cgi-bin/automock/update-api-lock", {
+    method: "post",
+    body: JSON.stringify({ name, locked }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
 export function deleteApi(name) {
   return fetch("/cgi-bin/automock/delete-api", {
     method: "post",
