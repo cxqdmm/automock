@@ -2,46 +2,8 @@
 
 whistle.automock 是[whistle](https://github.com/avwo/whistle)的一个扩展脚本插件，包括以下功能
 
-1. 自动生成 mock 文件:
-   - 实时捕获命中[whistle 规则](https://avwo.github.io/whistle/rules/)的接口
-   - 实时生成捕获接口的 mock 文件
-2. 管理 mock 文件:
-   - mock 开关：开启状态下，会用文件的内容作为关联接口的响应
-   - 编辑：mock 开启时，文件内容只能通过手动修改变更，mock 关闭时，会根据命中的接口实时刷新文件内容
-   - 删除
-3. 多种 mock 模式:
-
-   - pathname 模式：使用捕获接口的 origin + pathname 作为 mock 文件的文件名， 在开启 mock 时，当接口的 origin + pathname 等于文件名时则命中 mock
-
-     ```text
-     whistle rule:
-     https://www.a.com/get/name automock:// 或者 https://www.a.com/get/name automock://pathname
-
-     接口url:
-     https://www.a.com/get/name
-     https://www.a.com/get/name?a=1
-     https://www.a.com/get/name?a=2
-
-     上面三个接口会命中同一个mock文件
-     ```
-
-   - href 模式：使用捕获接口的 完整 url 作为 mock 文件的文件名， 在开启 mock 时，当接口的 url 等于文件名时则命中 mock
-
-     ```text
-      whistle rule:
-      https://www.a.com automock://href
-
-      接口url：
-      https://www.a.com/get/name
-      https://www.a.com/get/name?a=1
-      https://www.a.com/get/name?a=2
-
-      上面三个接口命中的mock文件各不相同
-     ```
-
-4. mock 文件支持版本管理
-   - source 原接口响应，开启 mock 后，可通过编辑修改响应值，主要用在临时 mock 场景，无需长久保存 mock 数据
-   - 新增版本 主要用于创建 mock 的多个副本，适用于需要长久保存 mock 数据的场景
+- 实时生成捕获接口的 mock 文件
+- 管理 mock 文件
 
 # 安装
 
@@ -49,15 +11,66 @@ $ w2 install whistle.automock
 
 # 用法
 
-### 配置[whistle 规则](https://avwo.github.io/whistle/rules/)
+### 配置 [whistle 规则](https://avwo.github.io/whistle/rules/)
 
-pathname 模式
+> mode 有三种选项 pathname | href | pattern，默认是 pathname
 
-www.xxx.com automock:// 或者 www.xxx.com automock://pathname
+```text
+pattern automock://[mode]
+```
 
-href 模式
-www.xxx.com automock://href
+### 生成 mock 文件
 
-### 文件管理
+---
 
-在 plugins 面板找到 automock,进入 automock 面板
+#### pathname 模式：使用接口的 origin + pathname 作为文件名
+
+```text
+pattern automock://  或者 pattern automock://pathname
+```
+
+---
+
+#### href 模式：使用接口的 路径 作为文件名
+
+```text
+pattern automock://href
+
+```
+
+---
+
+#### pattern 模式：使用 pattern 作为文件名
+
+```text
+pattern automock://pattern
+```
+
+---
+
+### 开始 mock
+
+第一步：开启文件的 mock 开关，系统生成一条规则：
+
+```
+文件名 resBody:{文件内容}
+```
+
+第二步：在 Response 面板管理文件内容
+
+手动添加文件
+
+- 如果需要提前生成 mock 文件，可手动添加（通常不需要手动添加，通过实时捕获接口即可生成 mock 文件）
+
+编辑文件
+
+- 支持文件编辑
+
+多版本
+
+- 支持新增不同版本的文件内容
+- 其中 source 版本是默认生成的，是原始接口响应数据，支持修改
+
+切换 mock 文件
+
+- mock 返回内容使用当前选中的版本

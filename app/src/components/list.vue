@@ -20,7 +20,7 @@
           </el-select>
         </div>
         <el-input
-          class="list-head-item list-head-name"
+          class="list-head-item list-head-name m-l-10"
           clearable
           size="small"
           placeholder="Fuzzy Search"
@@ -35,7 +35,6 @@
         </el-input>
         <el-divider direction="vertical"></el-divider>
         <el-radio-group
-          class="m-l-10"
           v-model="searchParam.range"
           size="small"
           @change="searchApi"
@@ -44,6 +43,17 @@
           <el-radio-button label="mocking">Mocking</el-radio-button>
           <el-radio-button label="not-mocking">Not Mocking</el-radio-button>
           <el-radio-button label="locked">Locked</el-radio-button>
+        </el-radio-group>
+        <el-divider direction="vertical"></el-divider>
+        <el-radio-group
+          v-model="searchParam.ruleValue"
+          size="small"
+          @change="searchApi"
+        >
+          <el-radio-button label="all">All</el-radio-button>
+          <el-radio-button label="pathname">pathname</el-radio-button>
+          <el-radio-button label="href">href</el-radio-button>
+          <el-radio-button label="pattern">pattern</el-radio-button>
         </el-radio-group>
       </div>
       <div class="list-head-action">
@@ -121,7 +131,7 @@
                   class="name-value font-bold"
                   :class="{
                     blue: isActiveMockFile(scope.row.rule) && scope.row.mock,
-                    error: scope.row.status !== 200,
+                    error: scope.row.status && scope.row.status !== 200,
                   }"
                 >
                   {{ scope.row.name }}
@@ -236,13 +246,7 @@
       </div>
       <div v-else class="detail"></div>
     </div>
-    <api-window
-      :visible="editData.visible"
-      :status="editData.status"
-      :data="editData"
-      @close="hideApiWindow"
-      @confirm="handleConfirm"
-    />
+    <api-window ref="create" @confirm="handleConfirm" />
   </div>
 </template>
 
@@ -284,18 +288,11 @@ export default {
         name: "",
         rule: "",
         range: "all", // "all" | "mocking" | "not-mocking" | "locked"
+        ruleValue: "all", // "all" | "pathname" | "href" | "pattern"
       },
       list: [],
       activeRules: [{ name: "All", value: "" }], // whistle 激活的 automock 规则列表
       view: {},
-      editRow: null,
-      editData: {
-        visible: false,
-        status: "create",
-        content: {},
-        name: "",
-        ruleValue: "",
-      },
       currentRow: null,
     };
   },
@@ -311,9 +308,6 @@ export default {
   },
   computed: {
     lockAutoUpdate() {
-      if (this.editData.visible) {
-        return true;
-      }
       return false;
     },
   },
@@ -387,7 +381,6 @@ export default {
             if (code !== 200) {
               Message.error("文件内容获取失败");
             } else {
-              this.editData.status = row.mock ? "edit" : "view";
               let content = {};
               try {
                 content =
@@ -407,9 +400,6 @@ export default {
         Message.error(error.message);
       }
     },
-    hideApiWindow() {
-      this.editData.visible = false;
-    },
     changeCurrentRow() {
       this.$nextTick(() => {
         let currentRow = this.list[0];
@@ -425,9 +415,6 @@ export default {
       this.currentRow.mockVersion = versionName;
     },
     handleConfirm({ content, name, ruleValue }) {
-      this.editData.content = content;
-      this.editData.name = name;
-      this.editData.ruleValue = ruleValue;
       this.createApi({
         name,
         content,
@@ -435,10 +422,7 @@ export default {
       });
     },
     handleCreate() {
-      this.editData.status = "create";
-      this.editData.content = {};
-      this.editData.name = "";
-      this.editData.visible = true;
+      this.$refs.create.show();
     },
     createApi(body) {
       createApiData(body)
@@ -447,7 +431,7 @@ export default {
           if (code !== 200) {
             Message.error(msg || "新建失败");
           } else {
-            this.hideApiWindow();
+            this.$refs.create.close();
             this.searchApi();
           }
         })
@@ -585,7 +569,7 @@ export default {
   padding: 10px;
   align-items: center;
   /deep/ .el-select {
-    width: 300px;
+    width: 250px;
   }
   &-action {
     display: flex;
@@ -597,11 +581,10 @@ export default {
     align-items: center;
   }
   &-name {
-    width: 300px;
+    width: 250px;
   }
   &-item {
     font-size: 14px;
-    margin-right: 10px;
   }
   &-item-label {
     font-size: 14px;
@@ -662,6 +645,7 @@ export default {
     overflow: hidden;
     border-left: 1px solid #ccc;
     margin-left: -2px;
+    background: white;
     .el-icon-close {
       position: absolute;
       top: 0;
@@ -799,6 +783,9 @@ export default {
 }
 .m-l-10 {
   margin-left: 10px;
+}
+.m-r-10 {
+  margin-right: 10px;
 }
 .icon {
   font-size: 16px;

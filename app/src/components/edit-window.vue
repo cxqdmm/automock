@@ -8,19 +8,14 @@
   >
     <span class="action">
       <el-button @click="close" size="medium">Cancel</el-button>
-      <el-button
-        v-if="status !== 'view'"
-        size="medium"
-        type="primary"
-        @click="confirm"
-        >Save</el-button
-      >
+      <el-button size="medium" type="primary" @click="confirm">Save</el-button>
     </span>
     <div class="item">
       <span class="item-label"> Mode: </span>
       <el-radio-group v-model="ruleValue">
         <el-radio label="pathname">pathname</el-radio>
         <el-radio label="href">href</el-radio>
+        <el-radio label="pattern">pattern</el-radio>
       </el-radio-group>
     </div>
     <div class="item">
@@ -39,7 +34,7 @@
         v-model="content"
         :show-btns="false"
         :expanded-on-start="true"
-        :mode="mode"
+        mode="code"
         :modes="['code']"
         lang="zh"
       />
@@ -51,58 +46,26 @@
 import CodeEditor from "./code-editor";
 import { Message } from "element-ui";
 export default {
-  props: {
-    status: {
-      type: String,
-      default: "create",
-    },
-    data: {
-      type: Object,
-      deafult: {},
-    },
-    visible: {
-      type: Boolean,
-      default: false,
-    },
-  },
   components: {
     "code-editor": CodeEditor,
   },
   data() {
     return {
+      visible: false,
       content: {},
       name: "",
       ruleValue: "pathname",
     };
   },
-  computed: {
-    disabledEdit() {
-      return this.status === "edit" || this.status === "view";
-    },
-    title() {
-      if (this.status === "edit") {
-        return "编辑";
-      } else if (this.status === "view") {
-        return "查看";
-      }
-      return "新建";
-    },
-    mode() {
-      return this.status === "view" ? "code" : "code";
-    },
-  },
-  watch: {
-    visible(val) {
-      if (val) {
-        this.content = this.data.content;
-        this.ruleValue = this.data.ruleValue || "pathname";
-        this.name = this.data.name;
-      }
-    },
-  },
   methods: {
     close() {
-      this.$emit("close");
+      this.visible = false;
+    },
+    show() {
+      this.visible = true;
+      this.content = {};
+      this.ruleValue = "pathname";
+      this.name = "";
     },
     validate() {
       try {
@@ -188,15 +151,7 @@ export default {
 .input-with-select {
   width: 600px;
 }
-.name-protocol {
-  width: 100px;
-}
-.title {
-  height: 56px;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #e6e6e6;
-}
+
 .action {
   position: relative;
   display: flex;
