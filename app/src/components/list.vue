@@ -491,7 +491,7 @@ export default {
           center: true,
         })
           .then(() => {
-            batchDelete(this.searchParam)
+            batchDelete({ ...this.searchParam, range })
               .then((data) => {
                 if (data.code !== 200) {
                   Message.error("删除失败");
@@ -505,7 +505,7 @@ export default {
           })
           .catch(() => {});
       } else {
-        batchDelete(this.searchParam)
+        batchDelete({ ...this.searchParam, range })
           .then((data) => {
             if (data.code !== 200) {
               Message.error("删除失败");
